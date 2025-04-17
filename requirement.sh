@@ -1,8 +1,9 @@
 # Update apt repository dan install dependencies PHP
+npm install
 apt-get update
 apt-get install -y php php-cli php-fpm php-mbstring php-xml php-curl php-zip php-mysql unzip curl
 
-npm install
+
 
 # Set up Laravel
 php artisan key:generate
