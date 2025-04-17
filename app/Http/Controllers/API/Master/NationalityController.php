@@ -12,13 +12,13 @@ use Illuminate\Http\Request;
 class NationalityController extends Controller
 {
 
-    public function all()
+    public function index()
     {
         $nationality = Nationality::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($nationality, 'List Nationality');
     }
 
-    public function create(CreateNationalityRequest $request)
+    public function store(CreateNationalityRequest $request)
     {
         $data = $request->validated();
         $id = uuid_create();

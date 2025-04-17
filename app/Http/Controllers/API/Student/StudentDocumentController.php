@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Master;
+namespace App\Http\Controllers\API\Student;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
@@ -11,13 +11,13 @@ use Illuminate\Http\Request;
 
 class StudentDocumentController extends Controller
 {
-    public function all()
+    public function index()
     {
         $studentDocuments = StudentDocument::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($studentDocuments, 'List Student Document');
     }
 
-    public function create(CreateStudentDocumentRequest $request)
+    public function store(CreateStudentDocumentRequest $request)
     {
         $request->validated();
 

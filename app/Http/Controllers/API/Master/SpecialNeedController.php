@@ -12,13 +12,13 @@ use Illuminate\Http\Request;
 class SpecialNeedController extends Controller
 {
 
-    public function all()
+    public function index()
     {
         $specialNeed = SpecialNeed::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($specialNeed, 'List Special Need');
     }
 
-    public function create(CreateSpecialNeedRequest $request)
+    public function store(CreateSpecialNeedRequest $request)
     {
         $data = $request->validated();
         $id = uuid_create();

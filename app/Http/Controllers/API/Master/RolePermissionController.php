@@ -10,13 +10,13 @@ use Illuminate\Http\Request;
 
 class RolePermissionController extends Controller
 {
-    public function all()
+    public function index()
     {
         $rolePermissions = RolePermission::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($rolePermissions, 'List Role RolePermission');
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'role_id' => 'required',

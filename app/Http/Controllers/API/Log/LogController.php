@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\File;
 class LogController extends Controller
 {
 
-    public function all()
+    public function index()
     {
         $logPath = storage_path('logs/activity.log');
 

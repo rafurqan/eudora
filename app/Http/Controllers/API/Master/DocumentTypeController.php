@@ -12,13 +12,13 @@ use Illuminate\Http\Request;
 class DocumentTypeController extends Controller
 {
 
-    public function all()
+    public function index()
     {
         $documentType = DocumentType::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($documentType, 'List Document Type');
     }
 
-    public function create(CreateDocumentTypeRequest $request)
+    public function store(CreateDocumentTypeRequest $request)
     {
         $data = $request->validated();
         $id = uuid_create();

@@ -12,13 +12,13 @@ use Illuminate\Http\Request;
 class TransportationModeController extends Controller
 {
 
-    public function all()
+    public function index()
     {
         $transportationMode = TransportationMode::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($transportationMode, 'List Transportation Mode');
     }
 
-    public function create(CreateTransportationModeRequest $request)
+    public function store(CreateTransportationModeRequest $request)
     {
         $data = $request->validated();
         $id = uuid_create();

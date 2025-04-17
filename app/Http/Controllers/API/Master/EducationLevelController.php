@@ -8,17 +8,20 @@ use App\Http\Requests\CreateEducationLevelRequest;
 use App\Http\Requests\UpdateEducationLevelRequest;
 use App\Models\EducationLevel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class EducationLevelController extends Controller
 {
 
-    public function all()
+    public function index()
     {
-        $educationLevel = EducationLevel::orderBy('created_at', 'desc')->get();
+        $educationLevel = Cache::remember('education_levels', 60, function () {
+            return EducationLevel::orderBy('created_at', 'desc')->get();
+        });
         return ResponseFormatter::success($educationLevel, 'List Education Level');
     }
 
-    public function create(CreateEducationLevelRequest $request)
+    public function store(CreateEducationLevelRequest $request)
     {
         $data = $request->validated();
         $id = uuid_create();

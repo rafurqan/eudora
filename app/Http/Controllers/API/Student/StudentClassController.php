@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Log;
 
 class StudentClassController extends Controller
 {
-    public function all()
+    public function index()
     {
         $studentClass = StudentClass::with(['teacher', 'education'])->orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($studentClass, 'List Student Class');
     }
 
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
 
         $request->validate([

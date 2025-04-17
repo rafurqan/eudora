@@ -9,13 +9,13 @@ use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
-    public function all()
+    public function index()
     {
         $teachers = Teacher::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($teachers, 'List Teacher');
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',

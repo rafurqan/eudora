@@ -10,13 +10,13 @@ use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
-    public function all()
+    public function index()
     {
         $permissions = Permission::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($permissions, 'List Permission');
     }
 
-    public function create(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',

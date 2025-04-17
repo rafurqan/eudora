@@ -12,13 +12,13 @@ use Illuminate\Http\Request;
 class GuardianRelationshipController extends Controller
 {
 
-    public function all()
+    public function index()
     {
         $guardianRelationships = GuardianRelationships::orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($guardianRelationships, 'List Guardian Relationship');
     }
 
-    public function create(CreateGuardianRelationshipRequest $request)
+    public function store(CreateGuardianRelationshipRequest $request)
     {
         $data = $request->validated();
         $id = uuid_create();
