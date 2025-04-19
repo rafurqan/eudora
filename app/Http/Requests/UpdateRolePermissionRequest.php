@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 // app/Http/Requests/Master/StoreEducationLevelRequest.php
-class UpdateTransportationModeRequest extends FormRequest
+class UpdateRolePermissionRequest extends FormRequest
 {
     public function authorize()
     {
@@ -15,7 +15,8 @@ class UpdateTransportationModeRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required',
+            'role_id' => 'required',
+            'permission_id' => 'required'
         ];
     }
 }

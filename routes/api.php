@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Master\ReligionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Authentication\AuthController;
 use App\Http\Controllers\API\Log\LogController;
@@ -46,6 +47,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('special-needs', SpecialNeedController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('transportation-modes', TransportationModeController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('student-classes', StudentClassController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('religions', ReligionController::class)->only(['index', 'store', 'update', 'destroy']);
 
             Route::middleware(CheckPermission::class . ':List Permission')->get('permissions', [PermissionController::class, 'all']);
             Route::middleware(CheckPermission::class . ':Add Permission')->post('permissions', [PermissionController::class, 'create']);

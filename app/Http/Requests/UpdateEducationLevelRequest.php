@@ -9,7 +9,7 @@ class UpdateEducationLevelRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; // atau cek role/permission di sini
+        return true;
     }
 
     public function rules()

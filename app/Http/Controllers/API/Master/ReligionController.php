@@ -4,27 +4,27 @@ namespace App\Http\Controllers\API\Master;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreatePermissionRequest;
-use App\Http\Requests\UpdatePermissionRequest;
-use App\Models\Permission;
+use App\Http\Requests\CreateReligionRequest;
+use App\Http\Requests\UpdateReligionRequest;
+use App\Models\Religion;
 use Illuminate\Http\Request;
 
 
-class PermissionController extends Controller
+class ReligionController extends Controller
 {
     public function index()
     {
-        $permissions = Permission::orderBy('created_at', 'desc')->get();
-        return ResponseFormatter::success($permissions, 'List Permission');
+        $permissions = Religion::orderBy('created_at', 'desc')->get();
+        return ResponseFormatter::success($permissions, 'List Religion');
     }
 
-    public function store(CreatePermissionRequest $request)
+    public function store(CreateReligionRequest $request)
     {
         $request->validated();
 
         $user = $request->user();
         $id = uuid_create();
-        Permission::create([
+        Religion::create([
             'id' => $id,
             'name' => $request->name,
             'created_by_id' => $user->id,
@@ -33,19 +33,19 @@ class PermissionController extends Controller
 
         return ResponseFormatter::success([
             'id' => $id
-        ], 'Success create Permission');
+        ], 'Success create Religion');
     }
 
 
     public function destroy(Request $request, $id)
     {
-        $permission = Permission::find($id);
+        $permission = Religion::find($id);
 
         if ($permission) {
             $permission->delete();
             return ResponseFormatter::success(
                 data: null,
-                message: 'Success Remove Permission'
+                message: 'Success Remove Religion'
             );
         } else {
             return ResponseFormatter::error(
@@ -57,11 +57,11 @@ class PermissionController extends Controller
     }
 
 
-    public function update(UpdatePermissionRequest $request, $id)
+    public function update(UpdateReligionRequest $request, $id)
     {
         $request->validated();
 
-        $permission = Permission::find($id);
+        $permission = Religion::find($id);
         $user = $request->user();
 
         if (!$permission) {
@@ -76,7 +76,7 @@ class PermissionController extends Controller
 
         return ResponseFormatter::success([
             'id' => $permission->id
-        ], 'Success update Permission');
+        ], 'Success update Religion');
     }
 
 }

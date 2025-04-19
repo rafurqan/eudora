@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Authentication;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SignInRequest;
 use App\Models\User;
 use Hash;
 use Illuminate\Http\Request;
@@ -11,13 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(SignInRequest $request)
     {
 
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $request->validated();
 
         $user = User::where('email', $request->email)->first();
 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\Master;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateRolePermissionRequest;
+use App\Http\Requests\UpdateRolePermissionRequest;
 use App\Models\RolePermission;
 use Illuminate\Http\Request;
 
@@ -16,12 +18,9 @@ class RolePermissionController extends Controller
         return ResponseFormatter::success($rolePermissions, 'List Role RolePermission');
     }
 
-    public function store(Request $request)
+    public function store(CreateRolePermissionRequest $request)
     {
-        $request->validate([
-            'role_id' => 'required',
-            'permission_id' => 'required'
-        ]);
+        $request->validated();
 
         $user = $request->user();
         $id = uuid_create();
@@ -59,11 +58,9 @@ class RolePermissionController extends Controller
     }
 
 
-    public function update(Request $request, $id)
+    public function update(UpdateRolePermissionRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
+        $request->validated();
 
         $roleRolePermission = RolePermission::find($id);
         $user = $request->user();
