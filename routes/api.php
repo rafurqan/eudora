@@ -31,7 +31,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // LOG
-    Route::get('logs', [LogController::class, 'all']);
+    Route::get('logs', [LogController::class, 'index']);
 
     // PROTECTED ROUTES
     Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
