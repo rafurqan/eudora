@@ -17,6 +17,13 @@ class EducationLevel extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    protected $hidden = [
+        'created_at',
+        'created_by_id',
+        'updated_at',
+        'updated_by_id'
+    ];
+
     protected $fillable = [
         'id',
         'name',

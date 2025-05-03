@@ -1,6 +1,15 @@
 <?php
 
+use App\Http\Controllers\API\Master\ContactTypeController;
+use App\Http\Controllers\API\Master\IncomeRangeController;
 use App\Http\Controllers\API\Master\ReligionController;
+use App\Http\Controllers\API\Master\SchoolTypeController;
+use App\Http\Controllers\API\Master\SpecialConditionController;
+use App\Http\Controllers\API\Student\StudentAddressController;
+use App\Http\Controllers\API\Student\StudentContactController;
+use App\Http\Controllers\API\Student\StudentController;
+use App\Http\Controllers\API\Student\StudentOriginSchoolController;
+use App\Http\Controllers\API\Student\StudentParentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Authentication\AuthController;
 use App\Http\Controllers\API\Log\LogController;
@@ -31,7 +40,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // LOG
-    Route::get('logs', [LogController::class, 'index']);
+    Route::get('logs', [LogController::class, 'index'])->middleware('auth:sanctum');
 
     // PROTECTED ROUTES
     Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
@@ -40,7 +49,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('master')->group(function () {
 
             Route::apiResource('education-levels', EducationLevelController::class)->only(['index', 'store', 'update', 'destroy']);
-            Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('document-types', DocumentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('guardian-relationships', GuardianRelationshipController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('nationalities', NationalityController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -48,6 +56,11 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('transportation-modes', TransportationModeController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('student-classes', StudentClassController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('religions', ReligionController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('income-ranges', IncomeRangeController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('contact-types', ContactTypeController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('special-conditions', SpecialConditionController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('school-types', SchoolTypeController::class)->only(['index', 'store', 'update', 'destroy']);
+
 
             Route::middleware(CheckPermission::class . ':List Permission')->get('permissions', [PermissionController::class, 'all']);
             Route::middleware(CheckPermission::class . ':Add Permission')->post('permissions', [PermissionController::class, 'create']);
@@ -60,8 +73,15 @@ Route::prefix('v1')->group(function () {
             Route::middleware(CheckPermission::class . ':Update Role Permission')->put('role-permissions/{id}', [RolePermissionController::class, 'update']);
         });
 
+        Route::apiResource('students', StudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         // STUDENT DOCUMENTS
-        Route::apiResource('student-documents', StudentDocumentController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::apiResource('students/{id}/documents', StudentDocumentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::apiResource('students/{id}/origin-schools', StudentOriginSchoolController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::apiResource('students/{id}/addresses', StudentAddressController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::apiResource('students/{id}/parents', StudentParentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::apiResource('students/{id}/contacts', StudentContactController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+
+        Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 });
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\Master;
 
+use App\Helpers\MasterCache;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateDocumentTypeRequest;
@@ -14,7 +15,9 @@ class DocumentTypeController extends Controller
 
     public function index()
     {
-        $documentType = DocumentType::orderBy('created_at', 'desc')->get();
+        $documentType = MasterCache::getOrFetch('document_types', 3600, function () {
+            return DocumentType::orderBy('created_at', 'desc')->get();
+        });
         return ResponseFormatter::success($documentType, 'List Document Type');
     }
 
@@ -25,7 +28,7 @@ class DocumentTypeController extends Controller
         $data['id'] = $id;
         $data['created_by_id'] = $request->user()->id;
         DocumentType::create($data);
-
+        MasterCache::clear('document_types');
         return ResponseFormatter::success([
             'id' => $id
         ], 'Success create Document Type');
@@ -38,6 +41,7 @@ class DocumentTypeController extends Controller
 
         if ($documentType) {
             $documentType->delete();
+            MasterCache::clear('document_types');
             return ResponseFormatter::success(
                 data: null,
                 message: 'Success Remove Document Type'
@@ -63,7 +67,7 @@ class DocumentTypeController extends Controller
         $data["updated_by_id"] = $request->user()->id;
 
         $documentType->update($data);
-
+        MasterCache::clear('document_types');
         return ResponseFormatter::success([
             'id' => $documentType->id
         ], 'Success update Document Type');

@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\API\Master;
 
+use App\Helpers\MasterCache;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateEducationLevelRequest;
 use App\Http\Requests\UpdateEducationLevelRequest;
 use App\Models\EducationLevel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class EducationLevelController extends Controller
 {
 
     public function index()
     {
-        $educationLevel = Cache::remember('education_levels', 60, function () {
+        $educationLevel = MasterCache::getOrFetch('education_levels', 3660, function () {
             return EducationLevel::orderBy('created_at', 'desc')->get();
         });
         return ResponseFormatter::success($educationLevel, 'List Education Level');
@@ -28,7 +28,7 @@ class EducationLevelController extends Controller
         $data['id'] = $id;
         $data['created_by_id'] = $request->user()->id;
         EducationLevel::create($data);
-
+        MasterCache::clear('education_levels');
         return ResponseFormatter::success([
             'id' => $id
         ], 'Success create education level');
@@ -41,6 +41,7 @@ class EducationLevelController extends Controller
 
         if ($education) {
             $education->delete();
+            MasterCache::clear('education_levels');
             return ResponseFormatter::success(
                 data: null,
                 message: 'Success Remove Education Level'
@@ -66,6 +67,7 @@ class EducationLevelController extends Controller
         $data["updated_by_id"] = $request->user()->id;
 
         $education->update($data);
+        MasterCache::clear('education_levels');
 
         return ResponseFormatter::success([
             'id' => $education->id

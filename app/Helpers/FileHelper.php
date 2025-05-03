@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Helpers;
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class FileHelper
+{
+    /**
+     * Simpan file base64 ke storage/public/{folder}
+     *
+     * @throws \Exception
+     */
+    public static function saveBase64File(string $base64, string $folder, int $maxSizeMb = 2): string
+    {
+        $imageData = explode(',', $base64)[1] ?? null;
+        if (!$imageData) {
+            throw new \Exception("Format base64 tidak valid");
+        }
+
+        $decoded = base64_decode($imageData);
+        if ($decoded === false) {
+            throw new \Exception("Base64 decode gagal");
+        }
+
+        // Validasi ukuran maksimal
+        $maxSize = $maxSizeMb * 1024 * 1024; // dalam byte
+        if (strlen($decoded) > $maxSize) {
+            throw new \Exception("Ukuran file melebihi {$maxSizeMb}MB");
+        }
+
+        // Deteksi MIME
+        $finfo = finfo_open();
+        $mime = finfo_buffer($finfo, $decoded, FILEINFO_MIME_TYPE);
+
+        // Validasi tipe yang diizinkan
+        $allowedMimes = [
+            'image/png' => 'png',
+            'image/jpeg' => 'jpg',
+            'application/pdf' => 'pdf',
+        ];
+
+        if (!isset($allowedMimes[$mime])) {
+            throw new \Exception("Tipe file tidak didukung: $mime");
+        }
+
+        $ext = $allowedMimes[$mime];
+        $filename = Str::uuid() . '.' . $ext;
+
+        Storage::disk('public')->put("{$folder}/{$filename}", $decoded);
+
+        return $filename; // atau bisa Storage::url(...) kalau mau langsung URL
+    }
+}

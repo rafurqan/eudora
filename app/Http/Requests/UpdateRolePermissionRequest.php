@@ -15,8 +15,8 @@ class UpdateRolePermissionRequest extends FormRequest
     public function rules()
     {
         return [
-            'role_id' => 'required',
-            'permission_id' => 'required'
+            'role_id' => 'nullable|uuid|exists:roles,id',
+            'permission_id' => 'nullable|uuid|exists:permissions,id',
         ];
     }
 }
