@@ -6,36 +6,48 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateTeacherRequest;
 use App\Http\Requests\UpdateTeacherRequest;
+use App\Services\TeacherService;
 use App\Models\Teacher;
+use DB;
 use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
+    private TeacherService $teacherService;
+
+    public function __construct(TeacherService $teacherService)
+    {
+        $this->teacherService = $teacherService;
+    }
     public function index()
     {
-        $teachers = Teacher::with(['educationLevel'])->orderBy('created_at', 'desc')->get();
+
+        $teachers = $this->teacherService->index();
         return ResponseFormatter::success($teachers, 'List Teacher');
+    }
+
+    public function show($id)
+    {
+        $student = $this->teacherService->show($id);
+        if (!$student) {
+            return ResponseFormatter::error(null, 'Data Not Found', 404);
+        }
+        return ResponseFormatter::success($student, 'View Student');
     }
 
     public function store(CreateTeacherRequest $request)
     {
         $request->validated();
+        try {
+            $teacher = $this->teacherService->store($request->all());
+            return ResponseFormatter::success([
+                'id' => $teacher->id,
+            ], 'Success create teacher');
 
-        $id = uuid_create();
-        $data['id'] = $id;
-        $data['name'] = $request->name;
-        $data['nip'] = $request->nip;
-        $data['birth_place'] = $request->birth_place;
-        $data['birth_date'] = $request->birth_date;
-        $data['graduated_from'] = $request->graduated_from;
-        $data['education_level_id'] = $request->education_level['id'] ?? null;
-        $data['created_at'] = now();
-        $data['created_by_id'] = $request->user()->id;
-        Teacher::create($data);
-
-        return ResponseFormatter::success([
-            'id' => $id
-        ], 'Success create teacher');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e, 'Failed to store teacher', 500);
+        }
     }
 
 
@@ -44,17 +56,13 @@ class TeacherController extends Controller
         $teacher = Teacher::find($id);
 
         if ($teacher) {
-            $teacher->delete();
+            $this->teacherService->delete($id);
             return ResponseFormatter::success(
                 data: null,
                 message: 'Success Remove Teacher'
             );
         } else {
-            return ResponseFormatter::error(
-                data: null,
-                message: 'Data Not Found',
-                code: 404
-            );
+            return ResponseFormatter::errorNotFound();
         }
     }
 
@@ -68,8 +76,7 @@ class TeacherController extends Controller
         if (!$teacher) {
             return ResponseFormatter::error(null, 'Data not found', 404);
         }
-        $data["updated_by_id"] = $request->user()->id;
-        $teacher->update($data);
+        $this->teacherService->update($data, $id);
 
         return ResponseFormatter::success([
             'id' => $teacher->id

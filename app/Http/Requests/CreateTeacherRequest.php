@@ -20,6 +20,7 @@ class CreateTeacherRequest extends FormRequest
             'birth_place' => 'nullable',
             'birth_date' => 'nullable|date',
             'graduated_from' => 'nullable',
+            'education_level.id' => 'required|uuid|exists:education_levels,id'
         ];
     }
 }

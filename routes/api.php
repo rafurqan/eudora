@@ -81,7 +81,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('students/{id}/parents', StudentParentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/contacts', StudentContactController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 
-        Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy','show']);
     });
 });
 
