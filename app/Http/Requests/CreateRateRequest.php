@@ -22,12 +22,12 @@ class CreateRateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service_id'     => 'required|uuid',
+            'service_id'     => 'required|uuid|exists:services,id',
             'child_ids'      => 'nullable|array',
-            'program_id'     => 'nullable|uuid',
+            'child_ids.*'    => 'nullable|uuid',
+            'program_id'     => 'nullable|uuid|exists:program_school,id',
             'price'          => 'required|integer|min:0',
             'is_active'      => 'required|string|in:Y,N',
-            'created_by_id'  => 'required|uuid',
         ];
     }
 }

@@ -22,9 +22,12 @@ class UpdateRateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'service_id'     => 'required|uuid|exists:services,id',
+            'child_ids'      => 'nullable|array',
+            'child_ids.*'    => 'nullable|uuid',
+            'program_id'     => 'nullable|uuid|exists:program_school,id',
             'price'          => 'sometimes|integer|min:0',
             'is_active'      => 'sometimes|string|in:Y,N',
-            'updated_by_id'  => 'required|uuid',
         ];
     }
 }

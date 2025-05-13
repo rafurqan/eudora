@@ -15,7 +15,10 @@ class Rate extends Model
     protected $keyType = 'string';
 
     protected $casts = [
-        'child_id' => 'array',
+        'child_ids' => 'array',
+        'price' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     protected $fillable = [
@@ -26,10 +29,8 @@ class Rate extends Model
         'price',
         'is_active',
         'created_by_id',
-        'created_at',
-        'updated_at',
+        'updated_by_id'
     ];
-
 
     // Set UUID saat create
     protected static function boot()
@@ -49,9 +50,27 @@ class Rate extends Model
         return $this->belongsTo(Service::class, 'service_id');
     }
 
-    // OPTIONAL: Bisa buat relasi self-to-self (child_id ke id)
-    public function child()
+    // Relasi dengan children rates
+    public function children()
     {
-        return $this->belongsTo(Rate::class, 'child_id');
+        return $this->hasMany(Rate::class, 'id', 'child_ids');
+    }
+
+    // Relasi dengan program
+    // public function program()
+    // {
+    //     return $this->belongsTo(Program::class, 'program_id');
+    // }
+
+    // Relasi dengan user yang membuat
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    // Relasi dengan user yang mengupdate
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by_id');
     }
 }

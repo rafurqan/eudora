@@ -22,6 +22,7 @@ class Service extends Model
         'created_by_id',
         'created_at',
         'updated_at',
+        'updated_by_id'
     ];
 
     // Set UUID saat membuat entri baru

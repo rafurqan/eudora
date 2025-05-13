@@ -23,7 +23,7 @@ class UpdateServiceRequest extends FormRequest
     {
         return [
             'name'           => 'required|string',
-            'is_active'      => 'required|string|in:Y,N',
+            'is_active'      => 'required|string|in:Y,N'
         ];
     }
 }

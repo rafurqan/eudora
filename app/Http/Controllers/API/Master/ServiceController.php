@@ -40,7 +40,6 @@ class ServiceController extends Controller
             return ResponseFormatter::error(null, 'Data not found', 404);
         }
         $data["updated_by_id"] = $request->user()->id;
-
         $rate->update($data);
 
         return ResponseFormatter::success([
