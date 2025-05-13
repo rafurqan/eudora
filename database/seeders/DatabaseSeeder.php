@@ -9,6 +9,7 @@ use App\Models\Nationality;
 use App\Models\Religion;
 use App\Models\Role;
 use App\Models\SchoolType;
+use App\Models\Service;
 use App\Models\SpecialCondition;
 use App\Models\SpecialNeed;
 use App\Models\Student;
@@ -17,6 +18,8 @@ use App\Models\StudentParent;
 use App\Models\Teacher;
 use App\Models\TransportationMode;
 use App\Models\User;
+use App\Models\Rate;
+use App\Models\ProgramSchool;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Hash;
 use Illuminate\Database\Seeder;
@@ -192,6 +195,38 @@ class DatabaseSeeder extends Seeder
             'birth_place' => 'Padang',
             'education_level_id' => $educationLevelId,
             'graduated_from' => 'Universitas Andalas',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        //Program 
+        $programId = uuid_create();
+        ProgramSchool::create([
+            'id' => $programId,
+            'name' => 'Sekolah Menengah Atas',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        //Layanan
+        $servicesId = uuid_create();
+        Service::create([
+            'id' => $servicesId,
+            'name' => 'SPP Bulanan',
+            'is_active' => 'Y',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null,
+        ]);
+        //Tarif
+        $rateId = uuid_create();
+        Rate::create([
+            'id' => $rateId,
+            'service_id' => $servicesId,
+            'child_ids' => null, 
+            'program_id' => $programId, 
+            'price' => 150000,
+            'is_active' => 'Y',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null

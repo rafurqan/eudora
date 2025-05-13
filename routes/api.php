@@ -21,7 +21,9 @@ use App\Http\Controllers\API\Master\{
     PermissionController,
     RolePermissionController,
     SpecialNeedController,
-    TransportationModeController
+    TransportationModeController,
+    ServiceController,
+    RateController
 };
 use App\Http\Controllers\API\Student\{
     StudentClassController,
@@ -29,6 +31,7 @@ use App\Http\Controllers\API\Student\{
 };
 use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
+use PHPUnit\Architecture\Services\ServiceContainer;
 
 Route::prefix('v1')->group(function () {
 
@@ -60,7 +63,10 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('contact-types', ContactTypeController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('special-conditions', SpecialConditionController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('school-types', SchoolTypeController::class)->only(['index', 'store', 'update', 'destroy']);
-
+            
+            // Master Biaya 
+            Route::apiResource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('rates', RateController::class)->only(['index', 'store', 'update', 'destroy']);
 
             Route::middleware(CheckPermission::class . ':List Permission')->get('permissions', [PermissionController::class, 'all']);
             Route::middleware(CheckPermission::class . ':Add Permission')->post('permissions', [PermissionController::class, 'create']);
