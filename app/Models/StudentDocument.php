@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 
 class StudentDocument extends Model
@@ -16,9 +17,17 @@ class StudentDocument extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+    protected $hidden = [
+        'created_at',
+        'created_by_id',
+        'updated_at',
+        'updated_by_id'
+    ];
+
     protected $fillable = [
         'id',
         'name',
+        'student_id',
         'document_type_id',
         'file_name',
         'created_at',
@@ -27,4 +36,8 @@ class StudentDocument extends Model
         'updated_by_id'
     ];
 
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(DocumentType::class, 'document_type_id');
+    }
 }

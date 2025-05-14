@@ -4,33 +4,50 @@ namespace App\Http\Controllers\API\Teacher;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateTeacherRequest;
+use App\Http\Requests\UpdateTeacherRequest;
+use App\Services\TeacherService;
 use App\Models\Teacher;
+use DB;
 use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
+    private TeacherService $teacherService;
+
+    public function __construct(TeacherService $teacherService)
+    {
+        $this->teacherService = $teacherService;
+    }
     public function index()
     {
-        $teachers = Teacher::orderBy('created_at', 'desc')->get();
+
+        $teachers = $this->teacherService->index();
         return ResponseFormatter::success($teachers, 'List Teacher');
     }
 
-    public function store(Request $request)
+    public function show($id)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
+        $student = $this->teacherService->show($id);
+        if (!$student) {
+            return ResponseFormatter::error(null, 'Data Not Found', 404);
+        }
+        return ResponseFormatter::success($student, 'View Student');
+    }
 
-        $user = $request->user();
-        $id = uuid_create();
-        Teacher::create([
-            'id' => $id,
-            'name' => $request->name,
-        ]);
+    public function store(CreateTeacherRequest $request)
+    {
+        $request->validated();
+        try {
+            $teacher = $this->teacherService->store($request->all());
+            return ResponseFormatter::success([
+                'id' => $teacher->id,
+            ], 'Success create teacher');
 
-        return ResponseFormatter::success([
-            'id' => $id
-        ], 'Success create teacher');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseFormatter::error($e, 'Failed to store teacher', 500);
+        }
     }
 
 
@@ -39,36 +56,27 @@ class TeacherController extends Controller
         $teacher = Teacher::find($id);
 
         if ($teacher) {
-            $teacher->delete();
+            $this->teacherService->delete($id);
             return ResponseFormatter::success(
                 data: null,
                 message: 'Success Remove Teacher'
             );
         } else {
-            return ResponseFormatter::error(
-                data: null,
-                message: 'Data Not Found',
-                code: 404
-            );
+            return ResponseFormatter::errorNotFound();
         }
     }
 
 
-    public function update(Request $request, $id)
+    public function update(UpdateTeacherRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-        ]);
+        $data = $request->validated();
 
         $teacher = Teacher::find($id);
 
         if (!$teacher) {
             return ResponseFormatter::error(null, 'Data not found', 404);
         }
-
-        $teacher->update([
-            'name' => $request->name,
-        ]);
+        $this->teacherService->update($data, $id);
 
         return ResponseFormatter::success([
             'id' => $teacher->id

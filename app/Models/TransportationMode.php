@@ -14,6 +14,13 @@ class TransportationMode extends Model
     protected $table = 'transportation_modes';
     protected $primaryKey = 'id';
     public $incrementing = false;
+
+    protected $hidden = [
+        'created_at',
+        'created_by_id',
+        'updated_at',
+        'updated_by_id'
+    ];
     protected $keyType = 'string';
 
     protected $fillable = [
