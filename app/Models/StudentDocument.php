@@ -27,7 +27,8 @@ class StudentDocument extends Model
     protected $fillable = [
         'id',
         'name',
-        'student_id',
+        'aggregate_id',
+        'aggregate_type',
         'document_type_id',
         'file_name',
         'created_at',
@@ -36,7 +37,7 @@ class StudentDocument extends Model
         'updated_by_id'
     ];
 
-    public function type(): BelongsTo
+    public function documentType(): BelongsTo
     {
         return $this->belongsTo(DocumentType::class, 'document_type_id');
     }

@@ -21,13 +21,13 @@ class StudentController extends Controller
 {
     public function index()
     {
-        $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'addresses', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type'])->orderBy('created_at', 'desc')->get();
+        $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type', 'village'])->orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($student, 'List Student');
     }
 
     public function show($id)
     {
-        $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'addresses', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type'])->findOrFail($id);
+        $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type', 'village'])->findOrFail($id);
         if (!$student) {
             return ResponseFormatter::error(null, 'Data Not Found', 404);
         }
@@ -54,21 +54,25 @@ class StudentController extends Controller
                 'registration_code' => $data['registration_code'],
                 'full_name' => $data['full_name'],
                 'nickname' => $data['nickname'] ?? null,
-                'religion_id' => $data['religion_id'],
+                'religion_id' => $data['religion']['id'] ?? null,
                 'status' => 'waiting',
+                'has_kip' => $data['has_kip'] ?? false,
+                'has_kps' => $data['has_kps'] ?? false,
+                'eligible_for_kip' => $data['eligible_for_kip'] ?? false,
                 'child_order' => $data['child_order'] ?? null,
                 'health_condition' => $data['health_condition'] ?? null,
                 'hobby' => $data['hobby'] ?? null,
                 'gender' => $data['gender'],
                 'birth_place' => $data['birth_place'],
-                'transportation_mode_id' => $data['transportation_mode_id'],
+                'transportation_mode_id' => $data['transportation_mode']['id'] ?? null,
                 'birth_date' => $data['birth_date'],
                 'nisn' => $data['nisn'] ?? null,
-                'nationality_id' => $data['nationality_id'],
+                'nationality_id' => $data['nationality']['id'] ?? null,
+                'village_id' => $data['village']['id'] ?? null,
                 'family_position' => $data['child_order'] ?? null,
                 'family_status' => $data['family_status'] ?? null,
-                'special_need_id' => $data['special_need_id'] ?? null,
-                'special_condition_id' => $data['special_condition_id'] ?? null,
+                'special_need_id' => $data['special_need']['id'] ?? null,
+                'special_condition_id' => $data['special_condition']['id'] ?? null,
                 'photo_filename' => $photoFilename,
                 'additional_information' => $data['additional_information'] ?? null,
                 'created_by_id' => $userId,
@@ -80,9 +84,10 @@ class StudentController extends Controller
 
                 StudentDocument::create([
                     'id' => Str::uuid(),
-                    'student_id' => $id,
+                    'aggregate_id' => $id,
+                    'aggregate_type' => Student::class,
                     'created_by_id' => $userId,
-                    'document_type_id' => $doc['document_type_id'],
+                    'document_type_id' => $doc['document_type']['id'] ?? null,
                     'filename' => $docFilename,
                 ]);
             }
@@ -91,47 +96,39 @@ class StudentController extends Controller
             foreach ($data['contacts'] ?? [] as $doc) {
                 StudentContact::create([
                     'id' => Str::uuid(),
-                    'student_id' => $id,
+                    'aggregate_id' => $id,
+                    'aggregate_type' => Student::class,
                     'value' => $doc['value'],
                     'created_by_id' => $userId,
-                    'contact_type_id' => $doc['contact_type_id'],
+                    'contact_type_id' => $doc['contact_type']['id'] ?? null,
                 ]);
             }
 
-            // Simpan address jika ada
-            foreach ($data['addresses'] ?? [] as $doc) {
-                StudentAddress::create([
-                    'id' => Str::uuid(),
-                    'student_id' => $id,
-                    'created_by_id' => $userId,
-                    'document_type_id' => $doc['document_type_id'],
-                    'street' => $doc['street'],
-                ]);
-            }
 
             foreach ($data['parents'] ?? [] as $doc) {
                 StudentParent::create([
                     'id' => Str::uuid(),
-                    'student_id' => $id,
+                    'aggregate_id' => $id,
+                    'aggregate_type' => Student::class,
                     'parent_type' => $doc['parent_type'],
                     'nik' => $doc['nik'],
                     'full_name' => $doc['full_name'],
-                    'birth_year' => $doc['birth_year'],
-                    'education_level_id' => $doc['education_level_id'],
+                    'birth_year' => $doc['birth_year'] ?? null,
+                    'education_level_id' => $doc['education_level']['id'] ?? null,
                     'occupation' => $doc['occupation'],
-                    'income_range_id' => $doc['income_range_id'],
+                    'income_range_id' => $doc['income_range']['id'] ?? null,
                     'phone' => $doc['phone'],
                     'created_by_id' => $userId,
-                    'is_guardian' => $doc['is_guardian'],
                 ]);
             }
 
             foreach ($data['origin_schools'] ?? [] as $doc) {
                 StudentOriginSchool::create([
                     'id' => Str::uuid(),
-                    'student_id' => $id,
-                    'education_level_id' => $doc['education_level_id'],
-                    'school_type_id' => $doc['school_type_id'],
+                    'aggregate_id' => $id,
+                    'aggregate_type' => Student::class,
+                    'education_level_id' => $doc['education_level']['id'] ?? null,
+                    'school_type_id' => $doc['school_type']['id'] ?? null,
                     'school_name' => $doc['school_name'],
                     'npsn' => $doc['npsn'],
                     'created_by_id' => $userId,

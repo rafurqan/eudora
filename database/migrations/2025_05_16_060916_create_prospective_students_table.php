@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::create('prospective-students', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
             $table->string('registration_code')->unique();
@@ -22,7 +22,8 @@ return new class extends Migration {
 
             $table->foreignUuid('nationality_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedTinyInteger('child_order')->nullable();
-            $table->string('family_status')->nullable(); // anak / keponakan / lainnya
+            $table->string('family_status')->nullable();
+            $table->string('street')->nullable();
 
             $table->string('village_id')->nullable();
 
@@ -46,6 +47,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('prospective-students');
     }
 };

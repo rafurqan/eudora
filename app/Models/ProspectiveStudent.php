@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
-class Student extends Model
+class ProspectiveStudent extends Model
 {
     use HasFactory, Notifiable, HasUuids;
 
-    protected $table = 'students';
+    protected $table = 'prospective-students';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $appends = ['document_status','photo_url'];
+    protected $appends = ['document_status', 'photo_url'];
 
     protected $hidden = [
         'nationality_id',
@@ -91,36 +91,36 @@ class Student extends Model
     public function originSchools(): HasMany
     {
         return $this->hasMany(StudentOriginSchool::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function documents(): HasMany
     {
         return $this->hasMany(StudentDocument::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function parents(): HasMany
     {
         return $this->hasMany(StudentParent::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function contacts(): HasMany
     {
         return $this->hasMany(StudentContact::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function getDocumentStatusAttribute()
     {
         // Gunakan documents_count jika tersedia (hasil dari withCount)
         if (array_key_exists('documents_count', $this->attributes)) {
-            return $this->documents_count >= 2 ? 'Lengkap' : 'Belum Lengkap';
+            return $this->documents_count >= 1 ? 'Lengkap' : 'Belum Lengkap';
         }
 
         // Jika belum tersedia, fallback ke count manual (hanya untuk jaga-jaga)
-        return $this->documents()->count() >= 2 ? 'Lengkap' : 'Belum Lengkap';
+        return $this->documents()->count() >= 1 ? 'Lengkap' : 'Belum Lengkap';
     }
     public function getPhotoUrlAttribute(): ?string
     {
