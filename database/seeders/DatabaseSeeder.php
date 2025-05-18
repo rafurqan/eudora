@@ -162,9 +162,11 @@ class DatabaseSeeder extends Seeder
         $studentOriginSchoolId = uuid_create();
         StudentOriginSchool::create([
             'id' => $studentOriginSchoolId,
-            'student_id' => $studentId,
+            'aggregate_id' => $studentId,
+            'aggregate_type' => Student::class,
             'school_name' => 'SMP Negeri 1',
             'school_type_id' => $schoolTypeId,
+            'graduation_year' => '2020',
             'npsn' => '0012345678',
             'address_name' => 'Padang',
             'education_level_id' => $educationLevelId,
@@ -176,7 +178,8 @@ class DatabaseSeeder extends Seeder
         $studentParent = uuid_create();
         StudentParent::create([
             'id' => $studentParent,
-            'student_id' => $studentId,
+            'aggregate_id' => $studentId,
+            'aggregate_type' => Student::class,
             'parent_type' => 'father',
             'full_name' => 'Budi Anzar',
             'nik' => '1234567890123456',
@@ -184,7 +187,9 @@ class DatabaseSeeder extends Seeder
             'occupation' => 'Guru',
             'income_range_id' => $incomeRangeId,
             'phone' => '081234567890',
-            'is_guardian'=> true,
+            'email' => 'test@email.com',
+            'is_main_contact'=> true,
+            'is_emergency_contact'=> false,
             'education_level_id' => $educationLevelId,
             'created_by_id' => $userId,
             'created_at' => now(),
@@ -203,7 +208,7 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
-        // Program 
+        // Program
         $programId = uuid_create();
         ProgramSchool::create([
             'id' => $programId,
@@ -227,8 +232,8 @@ class DatabaseSeeder extends Seeder
         Rate::create([
             'id' => $rateId,
             'service_id' => $servicesId,
-            'child_ids' => null, 
-            'program_id' => $programId, 
+            'child_ids' => null,
+            'program_id' => $programId,
             'price' => 150000,
             'is_active' => 'Y',
             'created_by_id' => $userId,

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 use App\Rules\Base64File;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateStudentRequest extends FormRequest
+class CreateProspectiveStudentRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -29,17 +29,14 @@ class CreateStudentRequest extends FormRequest
             'family_status' => 'nullable|string|max:50',
             'special_need.id' => 'nullable|uuid|exists:special_needs,id',
             'special_condition.id' => 'nullable|uuid|exists:special_conditions,id',
-            'photo' => ['nullable', 'string', new Base64File],
+            'file' => ['nullable', 'string', new Base64File],
             'additional_information' => 'nullable|string',
             'health_condition' => 'nullable|string',
             'hobby' => 'nullable|string',
             'has_kip' => 'nullable|boolean',
             'has_kps' => 'nullable|boolean',
             'eligible_for_kip' => 'nullable|boolean',
-
-            // Student Addresses
-            'addresses' => 'nullable|array',
-            'addresses.*.street' => 'required|string|max:100',
+            'street'=> 'required|string|max:100',
             // Student Origin School
             'origin_schools' => 'nullable|array',
             'origin_schools.*.education_level.id' => 'required|uuid|exists:education_levels,id',
@@ -47,15 +44,13 @@ class CreateStudentRequest extends FormRequest
             'origin_schools.*.school_name' => 'required|string|max:100',
             'origin_schools.*.npsn' => 'required|string|max:100',
             'origin_schools.*.address_name' => 'required|string',
+            'origin_schools.*.graduation_year' => 'required|string',
             // Student Documents
             'documents' => 'nullable|array',
             'documents.*.document_type.id' => 'required|uuid|exists:document_types,id',
+            'documents.*.name' => 'required|string',
             'documents.*.file' => ['required', 'string', new Base64File],
 
-            // Student Contacts
-            'contacts' => 'nullable|array',
-            'contacts.*.value' => 'required|string',
-            'contacts.*.contact_type.id' => 'required|uuid|exists:document_types,id',
 
             // Student Parents
             'parents' => 'nullable|array',
@@ -67,7 +62,9 @@ class CreateStudentRequest extends FormRequest
             'parents.*.occupation' => 'nullable|string',
             'parents.*.income_range.id' => 'nullable|uuid|exists:income_ranges,id',
             'parents.*.phone' => 'nullable|string|max:20',
-            'parents.*.is_guardian' => 'nullable|boolean',
+            'parents.*.is_main_contact' => 'nullable|boolean',
+            'parents.*.is_emergency_contact' => 'nullable|boolean',
+            'parents.*.email' => 'nullable|string',
         ];
     }
 

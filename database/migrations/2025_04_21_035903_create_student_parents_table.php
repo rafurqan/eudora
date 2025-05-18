@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('student_parents', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('student_id');
+            $table->uuid('aggregate_id');
+            $table->string('aggregate_type');
             $table->string('parent_type');
             $table->string('full_name');
             $table->string('nik')->nullable();
@@ -22,12 +23,13 @@ return new class extends Migration
             $table->string('occupation')->nullable();
             $table->foreignUuid('income_range_id')->nullable()->constrained()->nullOnDelete();
             $table->string('phone')->nullable();
-            $table->boolean('is_guardian')->default(false);
+            $table->string('email')->nullable();
+            $table->boolean('is_emergency_contact')->default(false);
+            $table->boolean('is_main_contact')->default(false);
             $table->timestamps();
             $table->uuid('created_by_id');
             $table->uuid('updated_by_id')->nullable();
 
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
         });
 
     }
