@@ -15,6 +15,8 @@ use App\Http\Controllers\API\Authentication\AuthController;
 use App\Http\Controllers\API\Log\LogController;
 use App\Http\Controllers\API\Master\{
     DocumentTypeController,
+    DonationsTypesController,
+    DonorsController,
     EducationLevelController,
     GuardianRelationshipController,
     NationalityController,
@@ -23,7 +25,11 @@ use App\Http\Controllers\API\Master\{
     SpecialNeedController,
     TransportationModeController,
     ServiceController,
-    RateController
+    RateController,
+    RatePackageController,
+    DonationsTypesConttoller,
+    GrantsController
+
 };
 use App\Http\Controllers\API\Student\{
     StudentClassController,
@@ -67,6 +73,12 @@ Route::prefix('v1')->group(function () {
             // Master Biaya 
             Route::apiResource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('rates', RateController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('rates-package', RatePackageController::class)->only(['index', 'store', 'update', 'destroy']);
+
+            // Master Donasi
+            Route::apiResource('donors', DonorsController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('donation-types', DonationsTypesController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('grants', GrantsController::class)->only(['index', 'store', 'update', 'destroy']);
 
             Route::middleware(CheckPermission::class . ':List Permission')->get('permissions', [PermissionController::class, 'all']);
             Route::middleware(CheckPermission::class . ':Add Permission')->post('permissions', [PermissionController::class, 'create']);
