@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateRateRequest extends FormRequest
+class UpdateDonationTypeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,12 +22,7 @@ class UpdateRateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service_id'     => 'required|uuid|exists:services,id',
-            'child_ids'      => 'nullable|array',
-            'child_ids.*'    => 'nullable|uuid',
-            'program_id'     => 'nullable|uuid|exists:education_levels,id',
-            'price'          => 'sometimes|integer|min:0',
-            'is_active'      => 'sometimes|string|in:Y,N',
+            "name" => "required|string|max:255",
         ];
     }
 }

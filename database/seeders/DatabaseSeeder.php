@@ -20,6 +20,10 @@ use App\Models\TransportationMode;
 use App\Models\User;
 use App\Models\Rate;
 use App\Models\ProgramSchool;
+use App\Models\RatePackage;
+use App\Models\Donor;
+use App\Models\DonationType;
+use App\Models\Grant;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Hash;
 use Illuminate\Database\Seeder;
@@ -199,7 +203,7 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
-        //Program 
+        // Program 
         $programId = uuid_create();
         ProgramSchool::create([
             'id' => $programId,
@@ -208,7 +212,7 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
-        //Layanan
+        // Layanan
         $servicesId = uuid_create();
         Service::create([
             'id' => $servicesId,
@@ -218,7 +222,7 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null,
         ]);
-        //Tarif
+        // Tarif
         $rateId = uuid_create();
         Rate::create([
             'id' => $rateId,
@@ -231,5 +235,43 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
+        // Donor
+        $donorId = uuid_create();
+        Donor::create([
+            'id' => $donorId,
+            'name' => 'John Doe',
+            'is_active' => 'Y',
+            'created_by_id' => $userId,
+            'updated_by_id' => null,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        // DonationType
+        $donationTypeId = uuid_create();
+        DonationType::create([
+            'id' => $donationTypeId,
+            'name' => 'Scholarship',
+            'created_by_id' => $userId,
+            'updated_by_id' => null,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        // Grant
+        $grantId = uuid_create();
+        Grant::create([
+            'id' => $grantId,
+            'donor_id' => $donorId,
+            'donation_type_id' => $donationTypeId,
+            'is_active' => 'Y',
+            'description' => 'Science Grant',
+            'total_funds' => 5000,
+            'grant_expiration_date' => now()->addYear(),
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
     }
 }
