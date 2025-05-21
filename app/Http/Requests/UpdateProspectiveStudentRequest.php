@@ -22,6 +22,7 @@ class UpdateProspectiveStudentRequest extends FormRequest
             'birth_place' => 'required|string|max:100',
             'birth_date' => 'required|date',
             'nisn' => 'nullable|string|max:20',
+            'street' => 'nullable|string',
             'nationality.id' => 'nullable|uuid|exists:nationalities,id',
             'village.id' => 'nullable|exists:villages,id',
             'transportation_mode.id' => 'nullable|uuid|exists:transportation_modes,id',
@@ -36,10 +37,10 @@ class UpdateProspectiveStudentRequest extends FormRequest
             'has_kip' => 'nullable|boolean',
             'has_kps' => 'nullable|boolean',
             'eligible_for_kip' => 'nullable|boolean',
+            'phone'=> 'nullable|string',
+            'email'=> 'nullable|string',
 
-            // Student Addresses
-            'addresses' => 'nullable|array',
-            'addresses.*.street' => 'required|string|max:100',
+
             // Student Origin School
             'origin_schools' => 'nullable|array',
             'origin_schools.*.education_level.id' => 'required|uuid|exists:education_levels,id',
@@ -80,7 +81,6 @@ class UpdateProspectiveStudentRequest extends FormRequest
             'full_name.required' => 'Nama lengkap wajib diisi.',
             'gender.in' => 'Jenis kelamin harus salah satu dari male atau female.',
 
-            'addresses.*.street.required' => 'alamat wajib diisi.',
             'parents.*.full_name.required' => 'Nama orang tua wajib diisi.',
             'parents.*.parent_type.in' => 'Tipe orang tua tidak valid.',
             'documents.*.document_type_id.required' => 'Jenis dokumen wajib diisi.',

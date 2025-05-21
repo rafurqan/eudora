@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\Student;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateStudentClassRequest;
+use App\Http\Requests\UpdateStudentClassRequest;
 use App\Models\StudentClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -12,36 +14,27 @@ class StudentClassController extends Controller
 {
     public function index()
     {
-        $studentClass = StudentClass::with(['teacher', 'education'])->orderBy('created_at', 'desc')->get();
+        $studentClass = StudentClass::with(['teacher', 'program'])->orderBy('created_at', 'desc')->get();
         return ResponseFormatter::success($studentClass, 'List Student Class');
     }
 
 
-    public function store(Request $request)
+    public function store(CreateStudentClassRequest $request)
     {
 
-        $request->validate([
-            'name' => 'required',
-            'part' => 'required',
-            'capacity' => 'required',
-            'academic_year' => 'required',
-            'teacher_id' => 'required',
-            'education_level_id' => 'required|uuid',
-            'status' => 'required|in:ACTIVE,INACTIVE',
-        ]);
+        $data = $request->validated();
 
         $user = $request->user();
         $id = uuid_create();
-        \Log::info('Education Level:', ['education_level_id' => $request->education_level_id]);
         StudentClass::create([
             'id' => $id,
-            'name' => $request->name,
-            'part' => $request->part,
-            'capacity' => $request->capacity,
-            'academic_year' => $request->academic_year,
-            'education_level_id' => $request->education_level_id,
-            'teacher_id' => $request->teacher_id,
-            'status' => $request->status,
+            'name' => $data['name'] ?? null,
+            'part' => $data['part'] ?? null,
+            'capacity' => $data['capacity'] ?? null,
+            'academic_year' => $data['academic_year'] ?? null,
+            'program_id' => $data['program']['id'] ?? null,
+            'teacher_id' => $data['teacher']['id'] ?? null,
+            'status' => $data['status'] ?? null,
             'created_by_id' => $user->id,
         ]);
 
@@ -71,17 +64,9 @@ class StudentClassController extends Controller
     }
 
 
-    public function update(Request $request, $id)
+    public function update(UpdateStudentClassRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required',
-            'part' => 'required',
-            'capacity' => 'required',
-            'academic_year' => 'required',
-            'teacher_id' => 'required',
-            'education_level_id' => 'required|uuid',
-            'status' => 'required|in:ACTIVE,INACTIVE',
-        ]);
+        $data = $request->validated();
 
         $user = $request->user();
         $studentClass = StudentClass::find($id);
@@ -92,12 +77,13 @@ class StudentClassController extends Controller
 
         $studentClass->update([
             'id' => $id,
-            'name' => $request->name,
-            'part' => $request->part,
-            'capacity' => $request->capacity,
-            'academic_year' => $request->academic_year,
-            'teacher_id' => $request->teacher_id,
-            'status' => $request->status,
+            'name' => $data['name'] ?? null,
+            'part' => $data['part'] ?? null,
+            'capacity' => $data['capacity'] ?? null,
+            'academic_year' => $data['academic_year'] ?? null,
+            'program_id' => $data['program']['id'] ?? null,
+            'teacher_id' => $data['teacher']['id'] ?? null,
+            'status' => $data['status'] ?? null,
             'updated_by_id' => $user->id,
         ]);
 

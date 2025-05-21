@@ -19,6 +19,9 @@ return new class extends Migration {
             $table->enum('status', ['waiting', 'approved', 'rejected']);
             $table->date('birth_date');
             $table->string('nisn')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->string('street')->nullable();
 
             $table->foreignUuid('nationality_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedTinyInteger('child_order')->nullable();
