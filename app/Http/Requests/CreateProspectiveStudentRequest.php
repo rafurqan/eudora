@@ -36,7 +36,9 @@ class CreateProspectiveStudentRequest extends FormRequest
             'has_kip' => 'nullable|boolean',
             'has_kps' => 'nullable|boolean',
             'eligible_for_kip' => 'nullable|boolean',
-            'street'=> 'required|string|max:100',
+            'street'=> 'nullable|string',
+            'phone'=> 'nullable|string',
+            'email'=> 'nullable|string',
             // Student Origin School
             'origin_schools' => 'nullable|array',
             'origin_schools.*.education_level.id' => 'required|uuid|exists:education_levels,id',

@@ -6,6 +6,7 @@ use App\Models\DocumentType;
 use App\Models\EducationLevel;
 use App\Models\IncomeRange;
 use App\Models\Nationality;
+use App\Models\Program;
 use App\Models\Religion;
 use App\Models\Role;
 use App\Models\SchoolType;
@@ -102,6 +103,19 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
+
+        $programId = uuid_create();
+        Program::create([
+            'id' => $programId,
+            'name' => 'MI Tahfidz',
+            'level' => 'Dasar',
+            'status' => 'ACTIVE',
+            'description' => 'Khusus tahfidz',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
         $educationLevelId = uuid_create();
         EducationLevel::create([
             'id' => $educationLevelId,

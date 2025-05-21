@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Master\CityController;
 use App\Http\Controllers\API\Master\ContactTypeController;
 use App\Http\Controllers\API\Master\IncomeRangeController;
+use App\Http\Controllers\API\Master\ProgramController;
 use App\Http\Controllers\API\Master\ProvinceController;
 use App\Http\Controllers\API\Master\ReligionController;
 use App\Http\Controllers\API\Master\SchoolTypeController;
@@ -62,6 +63,7 @@ Route::prefix('v1')->group(function () {
         // MASTER DATA
         Route::prefix('master')->group(function () {
 
+            Route::apiResource('programs', ProgramController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('education-levels', EducationLevelController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('document-types', DocumentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('guardian-relationships', GuardianRelationshipController::class)->only(['index', 'store', 'update', 'destroy']);

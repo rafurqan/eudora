@@ -61,6 +61,8 @@ class ProspectiveStudentController extends Controller
                 'child_order' => $data['child_order'] ?? null,
                 'health_condition' => $data['health_condition'] ?? null,
                 'hobby' => $data['hobby'] ?? null,
+                'phone' => $data['phone'] ?? null,
+                'email' => $data['email'] ?? null,
                 'gender' => $data['gender'],
                 'birth_place' => $data['birth_place'],
                 'transportation_mode_id' => $data['transportation_mode']['id'] ?? null,
@@ -147,10 +149,12 @@ class ProspectiveStudentController extends Controller
         $student = ProspectiveStudent::find($id);
 
         if ($student) {
-            $student->delete();
+            $student->status = 'rejected';
+            $student->save();
+
             return ResponseFormatter::success(
-                data: null,
-                message: 'Success Remove Prospective Student'
+                data: ['id' => $id],
+                message: 'Prospective Student status updated to rejected'
             );
         } else {
             return ResponseFormatter::error(
@@ -160,6 +164,7 @@ class ProspectiveStudentController extends Controller
             );
         }
     }
+
 
 
     public function update(UpdateProspectiveStudentRequest $request, $id)
@@ -193,6 +198,8 @@ class ProspectiveStudentController extends Controller
                 'health_condition' => $data['health_condition'] ?? null,
                 'hobby' => $data['hobby'] ?? null,
                 'street' => $data['street'] ?? null,
+                'phone' => $data['phone'] ?? null,
+                'email' => $data['email'] ?? null,
                 'gender' => $data['gender'],
                 'birth_place' => $data['birth_place'],
                 'transportation_mode_id' => $data['transportation_mode']['id'] ?? null,

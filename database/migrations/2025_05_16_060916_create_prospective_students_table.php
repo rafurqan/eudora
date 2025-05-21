@@ -24,6 +24,8 @@ return new class extends Migration {
             $table->unsignedTinyInteger('child_order')->nullable();
             $table->string('family_status')->nullable();
             $table->string('street')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
 
             $table->string('village_id')->nullable();
 
