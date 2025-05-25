@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->foreignUuid('religion_id')->nullable()->constrained()->nullOnDelete();
             $table->enum('gender', ['male', 'female']);
 
+
             $table->string('birth_place');
             $table->enum('status', ['waiting', 'approved', 'rejected']);
             $table->date('birth_date');
@@ -40,6 +41,7 @@ return new class extends Migration {
             $table->boolean('has_kip')->default(false);
             $table->boolean('has_kps')->default(false);
             $table->boolean('eligible_for_kip')->default(false);
+            $table->foreignUuid('prospective_student_id')->nullable()->constrained()->nullOnDelete();
 
             $table->timestamps();
             $table->uuid('created_by_id');
