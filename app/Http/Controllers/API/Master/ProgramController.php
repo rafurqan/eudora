@@ -28,7 +28,7 @@ class ProgramController extends Controller
         $data['id'] = $id;
         $data['created_by_id'] = $request->user()->id;
         Program::create($data);
-        MasterCache::clear('program_levels');
+        MasterCache::clear('programs');
         return ResponseFormatter::success([
             'id' => $id
         ], 'Success create program');
@@ -41,7 +41,7 @@ class ProgramController extends Controller
 
         if ($program) {
             $program->delete();
-            MasterCache::clear('program_levels');
+            MasterCache::clear('programs');
             return ResponseFormatter::success(
                 data: null,
                 message: 'Success Remove Program'
@@ -67,7 +67,7 @@ class ProgramController extends Controller
         $data["updated_by_id"] = $request->user()->id;
 
         $program->update($data);
-        MasterCache::clear('program_levels');
+        MasterCache::clear('programs');
 
         return ResponseFormatter::success([
             'id' => $program->id
