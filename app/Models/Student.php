@@ -17,7 +17,7 @@ class Student extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $appends = ['document_status','photo_url'];
+    protected $appends = ['document_status', 'photo_url'];
 
     protected $hidden = [
         'nationality_id',
@@ -45,6 +45,7 @@ class Student extends Model
         'child_order',
         'family_status',
         'special_need_id',
+        'prospective_student_id',
         'special_condition_id',
         'transportation_mode_id',
         'photo_filename',
@@ -131,5 +132,20 @@ class Student extends Model
             return null;
 
         return asset("storage/photos/{$this->photo_filename}");
+    }
+
+    public function classMemberships()
+    {
+        return $this->hasMany(ClassMembership::class);
+    }
+
+    public function activeClassMembership()
+    {
+        return $this->hasOne(ClassMembership::class)->whereNull('end_at');
+    }
+
+    public function prospectiveStudent()
+    {
+        return $this->belongsTo(ProspectiveStudent::class, 'prospective_student_id');
     }
 }

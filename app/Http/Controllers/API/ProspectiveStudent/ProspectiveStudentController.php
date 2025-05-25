@@ -71,7 +71,7 @@ class ProspectiveStudentController extends Controller
                 'street' => $data['street'] ?? null,
                 'nationality_id' => $data['nationality']['id'] ?? null,
                 'village_id' => $data['village']['id'] ?? null,
-                'family_position' => $data['child_order'] ?? null,
+                'family_position' => $data['family_position'] ?? null,
                 'family_status' => $data['family_status'] ?? null,
                 'special_need_id' => $data['special_need']['id'] ?? null,
                 'special_condition_id' => $data['special_condition']['id'] ?? null,

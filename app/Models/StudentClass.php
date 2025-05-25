@@ -17,6 +17,7 @@ class StudentClass extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+
     protected $hidden = [
         'teacher_id'
     ];
@@ -44,6 +45,11 @@ class StudentClass extends Model
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class, 'program_id');
+    }
+
+    public function classMemberships()
+    {
+        return $this->hasMany(ClassMembership::class);
     }
 
 }
