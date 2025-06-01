@@ -54,6 +54,7 @@ class Student extends Model
         'special_need',
         'additional_information',
         'has_kip',
+        'has_kps',
         'status',
         'eligible_for_kip',
         'created_at',
