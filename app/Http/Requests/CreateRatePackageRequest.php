@@ -22,12 +22,17 @@ class CreateRatePackageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service_id'        => 'required|uuid|exists:services,id',
             'child_ids'         => 'nullable|array',
             'child_ids.*'       => 'nullable|uuid',
             'program_id'        => 'nullable|uuid|exists:education_levels,id',
             'price'             => 'required|integer|min:0',
             'is_active'         => 'required|string|in:Y,N',
+            'code'              => 'nullable|string',
+            'description'       => 'nullable|string',
+            'category'          => 'nullable|string',
+            'frequency'         => 'nullable|string',
+            'applies_to'        => 'nullable|string',
+            'service_name'      => 'required|string|max:255',
         ];
     }
 }

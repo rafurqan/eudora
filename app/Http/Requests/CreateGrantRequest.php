@@ -22,14 +22,17 @@ class CreateGrantRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'donor_id' => 'required|uuid|exists:donors,id',
-            'donation_type_id' => 'required|uuid|exists:donation_types,id',
-            'is_active' => 'required|string|size:1',
-            'description' => 'required|string',
-            'total_funds' => 'required|numeric|min:0|max:999999999999.99',
+            'donor_name' => 'nullable|string',
+            'grants_name' => 'nullable|string',
+            'donation_type' => 'nullable|string',
+            'is_active' => 'nullable|string|size:1',
+            'description' => 'nullable|string',
+            'total_funds' => 'nullable|numeric|min:0|max:999999999999.99',
             'grant_expiration_date' => 'nullable|date',
+            'acceptance_date' => 'nullable|date',
             'notes' => 'nullable|string',
             'updated_by_id' => 'nullable|uuid',
+            'code' => 'nullable|string',
         ];
     }
 }
