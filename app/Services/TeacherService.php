@@ -58,7 +58,6 @@ class TeacherService
         try {
 
             $student = $this->teacherRepository->update($data, $id);
-            Log::info("Student updated", ['id' => $id]);
             DB::commit();
             return $student;
         } catch (Exception $e) {

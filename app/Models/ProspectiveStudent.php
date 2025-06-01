@@ -13,7 +13,7 @@ class ProspectiveStudent extends Model
 {
     use HasFactory, Notifiable, HasUuids;
 
-    protected $table = 'prospective-students';
+    protected $table = 'prospective_students';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -53,6 +53,7 @@ class ProspectiveStudent extends Model
         'special_need',
         'additional_information',
         'has_kip',
+        'has_kps',
         'status',
         'eligible_for_kip',
         'created_at',
@@ -131,5 +132,15 @@ class ProspectiveStudent extends Model
             return null;
 
         return asset("storage/photos/{$this->photo_filename}");
+    }
+
+    public function classMemberships()
+    {
+        return $this->hasMany(ClassMembership::class);
+    }
+
+    public function activeClassMembership()
+    {
+        return $this->hasOne(ClassMembership::class)->whereNull('end_at');
     }
 }

@@ -38,7 +38,8 @@ use App\Http\Controllers\API\Master\{
 };
 use App\Http\Controllers\API\Student\{
     StudentClassController,
-    StudentDocumentController
+    StudentDocumentController,
+    ClassMembershipController
 };
 use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
@@ -109,8 +110,11 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('students/{id}/addresses', StudentAddressController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/parents', StudentParentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/contacts', StudentContactController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::get('class-memberships/all-students', [ClassMembershipController::class, 'getAllUniqueStudentsWithActiveClass']);
+        Route::apiResource('class-memberships', ClassMembershipController::class)->only(['index', 'store']);
 
-        Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy','show']);
+
+        Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 
         Route::apiResource('prospective-students', ProspectiveStudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
     });

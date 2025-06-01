@@ -26,7 +26,7 @@ class AuthController extends Controller
         }
 
         $user->tokens()->delete();
-        $expiresAt = now()->addMinutes(60);
+        $expiresAt = now()->addMinutes(480);
         $tokenResult = $user->createToken('auth_token', ['*'], $expiresAt)->plainTextToken;
         return ResponseFormatter::success([
             'access_token' => $tokenResult,

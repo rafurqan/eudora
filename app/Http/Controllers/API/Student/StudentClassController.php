@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateStudentClassRequest;
 use App\Http\Requests\UpdateStudentClassRequest;
 use App\Models\StudentClass;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -14,7 +15,14 @@ class StudentClassController extends Controller
 {
     public function index()
     {
-        $studentClass = StudentClass::with(['teacher', 'program'])->orderBy('created_at', 'desc')->get();
+        $studentClass = StudentClass::with(['teacher', 'program'])
+            ->withCount([
+                'classMemberships as class_membership_count' => function (Builder $query) {
+                    $query->whereNull('end_at');
+                }
+            ])
+            ->orderBy('name', 'asc')
+            ->get();
         return ResponseFormatter::success($studentClass, 'List Student Class');
     }
 
