@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RatePackage extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'rates';
     public $incrementing = false;
@@ -29,7 +30,14 @@ class RatePackage extends Model
         'price',
         'is_active',
         'created_by_id',
-        'updated_by_id'
+        'updated_by_id',
+        'code',
+        'description',
+        'category',
+        'frequency',
+        'applies_to',
+        'created_at',
+        'updated_at'
     ];
 
     // Set UUID saat create

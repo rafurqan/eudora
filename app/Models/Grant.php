@@ -4,19 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Grant extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
     protected $table = 'grants';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
         'id',
-        'donor_id',
-        'donation_type_id',
+        'donor_name',
+        'donation_type',
+        'code',
+        'grants_name',
         'is_active',
         'description',
         'total_funds',
@@ -26,6 +30,7 @@ class Grant extends Model
         'updated_by_id',
         'created_at',
         'updated_at',
+        'acceptance_date',
     ];
 
     // Set UUID saat create

@@ -28,6 +28,12 @@ class UpdateRatePackageRequest extends FormRequest
             'program_id'     => 'nullable|uuid|exists:education_levels,id',
             'price'          => 'sometimes|integer|min:0',
             'is_active'      => 'sometimes|string|in:Y,N',
+            'code'           => 'nullable|string',
+            'description'    => 'nullable|string',
+            'category'       => 'nullable|string',
+            'frequency'      => 'nullable|string',
+            'applies_to'     => 'nullable|string',
+            'service_name'   => 'nullable|string',
         ];
     }
 }

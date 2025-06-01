@@ -32,7 +32,6 @@ use App\Http\Controllers\API\Master\{
     ServiceController,
     RateController,
     RatePackageController,
-    DonationsTypesConttoller,
     GrantsController
 
 };

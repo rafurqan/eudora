@@ -15,12 +15,7 @@ class GrantsController extends Controller
     public function index()
     {
         $grant = Grant::select(
-            'grants.*',
-            'donation_types.name as tipe_donasi',
-            'donors.name as nama_donatur'
-        )
-        ->leftJoin('donation_types', 'grants.donation_type_id', '=', 'donation_types.id')
-        ->leftJoin('donors', 'grants.donor_id', '=', 'donors.id')
+            'grants.*')
         ->orderBy('grants.created_at', 'desc')
         ->get();
 
@@ -32,14 +27,29 @@ class GrantsController extends Controller
     }
 
     public function store (CreateGrantRequest $request) {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
+
+            $category = $request->donation_type;
+            $prefixMap = [
+                '1' => 'INV-',  // Individu
+                '2' => 'ORG-',   // Organisasi
+                '3' => 'GRP-',   // Kelompok
+            ];
+
+            $prefix = $prefixMap[$category] ?? 'EXT-';
+            $count = Grant::withTrashed()->where('donation_type', $category)->count() + 1;
+            $nextNumber = str_pad($count, 3, '0', STR_PAD_LEFT);
+            $generatedCode = $prefix . $nextNumber;
+
             $data = $request->validated();
             $id = uuid_create();
             $data['id'] = $id;
             $data['created_by_id'] = $request->user()->id;
             $data['updated_at'] = null;
-            $data['grant_expiration_date'] = $request->grant_expiration_date ?? now()->addYear()->toDateString();
+            $data['acceptance_date'] = $request->acceptance_date ?? now()->addYear()->toDateString();
+            $data['code'] = $generatedCode;
+            $data['is_active'] = $request->isActiveCheckbox ? 'Y' : 'N';
             $grant = Grant::create($data);
             DB::commit();
             return ResponseFormatter::success([
@@ -78,17 +88,17 @@ class GrantsController extends Controller
     }
 
     public function destroy (Request $request, $id) {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
+
             $grant = Grant::find($id);
+
             if (!$grant) {
                 return ResponseFormatter::error(null, 'Data Donasi Tidak ditemukan', 404);
             }
-            $deleted = $grant->delete();
-            if (!$deleted) {
-                DB::rollBack();
-                return ResponseFormatter::error(null, 'Gagal menghapus data donasi', 500);
-            }
+
+            $grant->delete();
+
             DB::commit();
             return ResponseFormatter::success(null, 'Berhasil menghapus Donasi');
         } catch (\Exception $e) {
