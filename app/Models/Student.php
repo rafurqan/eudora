@@ -149,4 +149,9 @@ class Student extends Model
     {
         return $this->belongsTo(ProspectiveStudent::class, 'prospective_student_id');
     }
+
+    public function invoices()
+    {
+        return $this->morphMany(Invoice::class, 'entity');
+    }
 }

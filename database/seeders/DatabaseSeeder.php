@@ -278,19 +278,19 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Grant
-        $grantId = uuid_create();
-        Grant::create([
-            'id' => $grantId,
-            'donor_id' => $donorId,
-            'donation_type_id' => $donationTypeId,
-            'is_active' => 'Y',
-            'description' => 'Science Grant',
-            'total_funds' => 5000,
-            'grant_expiration_date' => now()->addYear(),
-            'created_by_id' => $userId,
-            'created_at' => now(),
-            'updated_at' => null
-        ]);
+        // $grantId = uuid_create();
+        // Grant::create([
+        //     'id' => $grantId,
+        //     'donor_id' => $donorId,
+        //     'donation_type_id' => $donationTypeId,
+        //     'is_active' => 'Y',
+        //     'description' => 'Science Grant',
+        //     'total_funds' => 5000,
+        //     'grant_expiration_date' => now()->addYear(),
+        //     'created_by_id' => $userId,
+        //     'created_at' => now(),
+        //     'updated_at' => null
+        // ]);
 
     }
 }
