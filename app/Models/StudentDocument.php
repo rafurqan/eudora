@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 class StudentDocument extends Model
 {
@@ -16,6 +17,8 @@ class StudentDocument extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
+
+    protected $appends = ['file_url'];
 
     protected $hidden = [
         'created_at',
@@ -40,5 +43,15 @@ class StudentDocument extends Model
     public function documentType(): BelongsTo
     {
         return $this->belongsTo(DocumentType::class, 'document_type_id');
+    }
+
+    public function getFileUrlAttribute(): ?string
+    {
+        if (!$this->file_name) {
+            return null;
+        }
+
+        $path = Storage::url($this->file_name);
+        return asset("storage/documents/prospective_students/{$this->file_name}");
     }
 }

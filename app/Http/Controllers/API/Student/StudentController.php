@@ -19,19 +19,77 @@ use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
-    public function index()
+    // public function index()
+    // {
+    //     $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type', 'village'])->orderBy('created_at', 'desc')->get();
+    //     return ResponseFormatter::success($student, 'List Student');
+    // }
+
+    public function index(Request $request)
     {
-        $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type', 'village'])->orderBy('created_at', 'desc')->get();
-        return ResponseFormatter::success($student, 'List Student');
+
+        $keyword = $request->input('keyword');
+        $perPage = $request->input('per_page', 10);
+
+        $paginated = $this->getStudent($keyword, $perPage);
+
+        return ResponseFormatter::success(
+            $paginated->items(),
+            'List Student',
+            $paginated->total(),
+            $paginated->currentPage(),
+            $paginated->perPage()
+        );
+    }
+
+    private function getStudent($keyword, $perPage)
+    {
+        $query = Student::with([
+            'nationality',
+            'specialNeed',
+            'religion',
+            'specialCondition',
+            'transportationMode',
+            'originSchools.schoolType',
+            'originSchools.educationLevel',
+            'parents.educationLevel',
+            'parents.incomeRange',
+            'documents.documentType',
+            'contacts.type',
+            'village.subDistrict.city.province'
+        ])
+            ->orderBy('created_at', 'desc');
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('full_name', 'ilike', '%' . $keyword . '%')
+                    ->orWhere('nickname', 'ilike', '%' . $keyword . '%')
+                    ->orWhere('registration_code', 'ilike', '%' . $keyword . '%');
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function show($id)
     {
-        $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type', 'village'])->findOrFail($id);
-        if (!$student) {
-            return ResponseFormatter::error(null, 'Data Not Found', 404);
-        }
-        return ResponseFormatter::success($student, 'View Student');
+        $student = Student::with([
+            'nationality',
+            'specialNeed',
+            'religion',
+            'specialCondition',
+            'transportationMode',
+            'originSchools.schoolType',
+            'originSchools.educationLevel',
+            'parents.educationLevel',
+            'parents.incomeRange',
+            'documents.documentType',
+            'contacts.type',
+            'village.subDistrict.city.province'
+        ])
+            ->findOrFail($id);
+
+        return ResponseFormatter::success($student, 'Student details retrieved successfully.');
     }
 
     public function store(CreateStudentRequest $request)

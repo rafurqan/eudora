@@ -7,21 +7,41 @@ use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateProspectiveStudentRequest;
 use App\Http\Requests\UpdateProspectiveStudentRequest;
+use App\Models\ClassMembership;
 use App\Models\ProspectiveStudent;
+use App\Models\Student;
 use App\Models\StudentDocument;
 use App\Models\StudentOriginSchool;
 use App\Models\StudentParent;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 
 class ProspectiveStudentController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        // Memuat calon siswa beserta relasi
-        $students = ProspectiveStudent::with([
+
+        $keyword = $request->input('keyword');
+        $perPage = $request->input('per_page', 10);
+
+        $paginated = $this->getProspectiveStudent($keyword, $perPage);
+
+        return ResponseFormatter::success(
+            $paginated->items(),
+            'List Prospective Student',
+            $paginated->total(),
+            $paginated->currentPage(),
+            $paginated->perPage()
+        );
+    }
+
+    private function getProspectiveStudent($keyword, $perPage)
+    {
+        $query = ProspectiveStudent::with([
             'nationality',
             'specialNeed',
             'religion',
@@ -35,10 +55,17 @@ class ProspectiveStudentController extends Controller
             'contacts.type',
             'village.subDistrict.city.province'
         ])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
 
-        return ResponseFormatter::success($students, 'List of Prospective Students retrieved successfully.');
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('full_name', 'ilike', '%' . $keyword . '%')
+                    ->orWhere('nickname', 'ilike', '%' . $keyword . '%')
+                    ->orWhere('registration_code', 'ilike', '%' . $keyword . '%');
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
 
@@ -72,10 +99,9 @@ class ProspectiveStudentController extends Controller
         try {
             $photoFilename = null;
             if (!empty($data['file'])) {
-                $photoFilename = FileHelper::saveBase64File($data['file'], 'photos/prospective_students');
+                $photoFilename = FileHelper::saveBase64File($data['file'], 'photos');
             }
 
-            // Membuat model ProspectiveStudent
             ProspectiveStudent::create([
                 'id' => $prospectiveStudentId,
                 'registration_code' => $data['registration_code'],
@@ -176,6 +202,146 @@ class ProspectiveStudentController extends Controller
         }
     }
 
+    public function approve($id, Request $request)
+    {
+        $user = $request->user();
+
+        try {
+            $prospective = ProspectiveStudent::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return ResponseFormatter::error(null, 'Calon siswa tidak ditemukan.', 404);
+        }
+
+        DB::beginTransaction();
+        try {
+            $studentId = Str::uuid();
+
+            // Simpan ke tabel students
+            $student = Student::create([
+                'id' => $studentId,
+                'prospective_student_id' => $prospective->id,
+                'registration_code' => $prospective->registration_code,
+                'full_name' => $prospective->full_name,
+                'nickname' => $prospective->nickname,
+                'religion_id' => $prospective->religion_id,
+                'status' => 'approved',
+                'has_kip' => $prospective->has_kip,
+                'has_kps' => $prospective->has_kps,
+                'eligible_for_kip' => $prospective->eligible_for_kip,
+                'child_order' => $prospective->child_order,
+                'health_condition' => $prospective->health_condition,
+                'hobby' => $prospective->hobby,
+                'phone' => $prospective->phone,
+                'email' => $prospective->email,
+                'gender' => $prospective->gender,
+                'birth_place' => $prospective->birth_place,
+                'transportation_mode_id' => $prospective->transportation_mode_id,
+                'birth_date' => $prospective->birth_date,
+                'nisn' => $prospective->nisn,
+                'street' => $prospective->street,
+                'nationality_id' => $prospective->nationality_id,
+                'village_id' => $prospective->village_id,
+                'family_position' => $prospective->family_position,
+                'family_status' => $prospective->family_status,
+                'special_need_id' => $prospective->special_need_id,
+                'special_condition_id' => $prospective->special_condition_id,
+                'photo_filename' => $prospective->photo_filename,
+                'additional_information' => $prospective->additional_information,
+                'created_by_id' => $user->id,
+            ]);
+
+            // Copy dokumen
+            $documents = StudentDocument::where('aggregate_id', $prospective->id)
+                ->where('aggregate_type', ProspectiveStudent::class)
+                ->get();
+
+            foreach ($documents as $doc) {
+                StudentDocument::create([
+                    'id' => Str::uuid(),
+                    'aggregate_id' => $studentId,
+                    'aggregate_type' => Student::class,
+                    'name' => $doc->name,
+                    'file_name' => $doc->file_name,
+                    'document_type_id' => $doc->document_type_id,
+                    'created_by_id' => $user->id,
+                ]);
+            }
+
+            // Copy orang tua
+            $parents = StudentParent::where('aggregate_id', $prospective->id)
+                ->where('aggregate_type', ProspectiveStudent::class)
+                ->get();
+
+            foreach ($parents as $parent) {
+                StudentParent::create([
+                    'id' => Str::uuid(),
+                    'aggregate_id' => $studentId,
+                    'aggregate_type' => Student::class,
+                    'parent_type' => $parent->parent_type,
+                    'nik' => $parent->nik,
+                    'full_name' => $parent->full_name,
+                    'birth_year' => $parent->birth_year,
+                    'education_level_id' => $parent->education_level_id,
+                    'occupation' => $parent->occupation,
+                    'income_range_id' => $parent->income_range_id,
+                    'phone' => $parent->phone,
+                    'is_main_contact' => $parent->is_main_contact,
+                    'is_emergency_contact' => $parent->is_emergency_contact,
+                    'created_by_id' => $user->id,
+                ]);
+            }
+
+            // Copy asal sekolah
+            $schools = StudentOriginSchool::where('aggregate_id', $prospective->id)
+                ->where('aggregate_type', ProspectiveStudent::class)
+                ->get();
+
+            foreach ($schools as $school) {
+                StudentOriginSchool::create([
+                    'id' => Str::uuid(),
+                    'aggregate_id' => $studentId,
+                    'aggregate_type' => Student::class,
+                    'education_level_id' => $school->education_level_id,
+                    'school_type_id' => $school->school_type_id,
+                    'school_name' => $school->school_name,
+                    'npsn' => $school->npsn,
+                    'graduation_year' => $school->graduation_year,
+                    'address_name' => $school->address_name,
+                    'created_by_id' => $user->id,
+                ]);
+            }
+
+            // Copy class memberships
+            $memberships = ClassMembership::where('prospective_student_id', $prospective->id)->get();
+
+            foreach ($memberships as $membership) {
+                ClassMembership::create([
+                    'id' => Str::uuid(),
+                    'student_class_id' => $membership->student_class_id, // ini penting
+                    'student_id' => $student->id,
+                    'reason' => $membership->reason,
+                    'start_at' => $membership->start_at,
+                    'end_at' => $membership->end_at,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+
+            // Hapus class_membership lama
+            ClassMembership::where('prospective_student_id', $prospective->id)->delete();
+
+            // Update status calon siswa
+            $prospective->update(['status' => 'approved']);
+
+            DB::commit();
+
+            return ResponseFormatter::success([
+                'id' => $studentId,
+            ], 'Calon siswa berhasil di-approve.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseFormatter::error(null, 'Gagal menyetujui calon siswa. Error: ' . $e->getMessage(), 500);
+        }
+    }
 
     public function destroy($id)
     {
@@ -208,18 +374,18 @@ class ProspectiveStudentController extends Controller
         DB::beginTransaction();
         try {
             $currentPhotoFilename = $student->photo_filename;
+
             if (!empty($data['file'])) {
                 if (strlen($data['file']) > 100) {
-                    // Hapus foto lama jika ada dan file baru diunggah
+
                     if ($currentPhotoFilename) {
-                        FileHelper::deleteFile('photos/prospective_students', $currentPhotoFilename);
+                        FileHelper::deleteFile('photos', $currentPhotoFilename);
                     }
-                    $data['photo_filename'] = FileHelper::saveBase64File($data['file'], 'photos/prospective_students');
+                    $data['photo_filename'] = FileHelper::saveBase64File($data['file'], 'photos');
                 } else {
                     $data['photo_filename'] = $currentPhotoFilename;
                 }
             } else {
-                // Jika 'file' tidak ada dalam request, pertahankan foto yang sudah ada.
                 $data['photo_filename'] = $currentPhotoFilename;
             }
 
@@ -238,6 +404,7 @@ class ProspectiveStudentController extends Controller
                 'hobby' => $data['hobby'] ?? null,
                 'street' => $data['street'] ?? null,
                 'phone' => $data['phone'] ?? null,
+                'photo_filename' => $data['photo_filename'] ?? null,
                 'email' => $data['email'] ?? null,
                 'gender' => $data['gender'],
                 'birth_place' => $data['birth_place'],
