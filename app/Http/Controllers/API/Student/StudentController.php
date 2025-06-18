@@ -6,6 +6,7 @@ use App\Helpers\FileHelper;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateStudentRequest;
+use App\Models\ProspectiveStudent;
 use App\Models\Student;
 use App\Models\StudentAddress;
 use App\Models\StudentContact;
@@ -19,11 +20,6 @@ use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
-    // public function index()
-    // {
-    //     $student = Student::with(['nationality', 'specialNeed', 'religion', 'specialCondition', 'transportationMode', 'originSchools', 'parents.educationLevel', 'parents.incomeRange', 'documents', 'contacts.type', 'village'])->orderBy('created_at', 'desc')->get();
-    //     return ResponseFormatter::success($student, 'List Student');
-    // }
 
     public function index(Request $request)
     {
@@ -55,7 +51,6 @@ class StudentController extends Controller
             'parents.educationLevel',
             'parents.incomeRange',
             'documents.documentType',
-            'contacts.type',
             'village.subDistrict.city.province'
         ])
             ->orderBy('created_at', 'desc');
@@ -71,6 +66,158 @@ class StudentController extends Controller
         return $query->paginate($perPage);
     }
 
+    public function getAllStudent()
+    {
+        $keyword = request()->get('keyword');
+        $perPage = (int) request()->get('per_page', 10);
+        $page = (int) request()->get('page', 1);
+        $offset = ($page - 1) * $perPage;
+
+        $students = $this->getFilteredStudents($keyword, $perPage, $offset);
+        $total = $this->getTotalFilteredStudents($keyword);
+
+        return ResponseFormatter::success(
+            $students,
+            'Filtered and paginated students and prospective students',
+            $total,
+            $page,
+            $perPage
+        );
+    }
+
+
+    private function getFilteredStudents($keyword, $perPage, $offset)
+    {
+        // Menyusun filter keyword untuk pencarian
+        $whereKeyword = $this->buildKeywordFilter($keyword);
+
+        // Query SQL
+        $sql = "
+        WITH AllPossiblePersons AS (
+            SELECT
+                s.id AS person_id,
+                s.full_name,
+                s.gender,
+                s.nisn,
+                'student' AS person_type
+            FROM students s
+            WHERE 1=1 {$whereKeyword['student']}
+
+            UNION ALL
+
+            SELECT
+                ps.id AS person_id,
+                ps.full_name,
+                ps.gender,
+                ps.nisn,
+                'prospective_student' AS person_type
+            FROM prospective_students ps
+            WHERE ps.id NOT IN (
+                SELECT prospective_student_id FROM students WHERE prospective_student_id IS NOT NULL
+            )
+            {$whereKeyword['prospective_student']}
+        )
+        SELECT
+            app.person_id AS id,
+            app.full_name,
+            app.gender,
+            app.nisn,
+            app.person_type AS type,
+            cm.student_class_id
+        FROM AllPossiblePersons app
+        LEFT JOIN class_memberships cm
+            ON (
+                (app.person_type = 'student' AND cm.student_id = app.person_id)
+                OR
+                (app.person_type = 'prospective_student' AND cm.prospective_student_id = app.person_id)
+            )
+            AND cm.end_at IS NULL
+        ";
+
+        $sql .= " LIMIT {$perPage} OFFSET {$offset}";
+
+        $students = DB::select($sql);
+
+        $studentIds = collect($students)->where('type', 'student')->pluck('id')->toArray();
+        $prospectiveIds = collect($students)->where('type', 'prospective_student')->pluck('id')->toArray();
+
+        $studentsEloquent = Student::with('activeClassMembership.studentClass')
+            ->whereIn('id', $studentIds)
+            ->get();
+
+        $prospectivesEloquent = ProspectiveStudent::with('activeClassMembership.studentClass')
+            ->whereIn('id', $prospectiveIds)
+            ->get();
+
+        foreach ($students as $key => $item) {
+            $eloquent = $item->type === 'student'
+                ? $studentsEloquent->firstWhere('id', $item->id)
+                : $prospectivesEloquent->firstWhere('id', $item->id);
+
+            $students[$key]->active_class = $eloquent->activeClassMembership?->studentClass;
+        }
+
+        return $students;
+    }
+
+
+    private function buildKeywordFilter($keyword)
+    {
+        $filterKeyword = [
+            'student' => $keyword ? "AND (LOWER(s.full_name) LIKE LOWER('%{$keyword}%') OR LOWER(s.nisn) LIKE LOWER('%{$keyword}%') OR LOWER(s.gender) LIKE LOWER('%{$keyword}%'))" : '',
+            'prospective_student' => $keyword ? "AND (LOWER(ps.full_name) LIKE LOWER('%{$keyword}%') OR LOWER(ps.nisn) LIKE LOWER('%{$keyword}%') OR LOWER(ps.gender) LIKE LOWER('%{$keyword}%'))" : ''
+        ];
+
+        return $filterKeyword;
+    }
+
+    private function getTotalFilteredStudents($keyword)
+    {
+        // Menyusun filter keyword untuk pencarian
+        $whereKeyword = $this->buildKeywordFilter($keyword);
+
+        // Query untuk menghitung total data siswa
+        $countSql = "
+        WITH AllPossiblePersons AS (
+            SELECT
+                s.id AS person_id,
+                s.full_name,
+                s.gender,
+                s.nisn,
+                'student' AS person_type
+            FROM students s
+            WHERE 1=1 {$whereKeyword['student']}
+
+            UNION ALL
+
+            SELECT
+                ps.id AS person_id,
+                ps.full_name,
+                ps.gender,
+                ps.nisn,
+                'prospective_student' AS person_type
+            FROM prospective_students ps
+            WHERE ps.id NOT IN (
+                SELECT prospective_student_id FROM students WHERE prospective_student_id IS NOT NULL
+            )
+            {$whereKeyword['prospective_student']}
+        )
+        SELECT COUNT(*) AS total_count
+        FROM AllPossiblePersons app
+        LEFT JOIN class_memberships cm
+            ON (
+                (app.person_type = 'student' AND cm.student_id = app.person_id)
+                OR
+                (app.person_type = 'prospective_student' AND cm.prospective_student_id = app.person_id)
+            )
+            AND cm.end_at IS NULL
+    ";
+
+
+        // Menjalankan query untuk menghitung total data siswa
+        return DB::selectOne($countSql)->total_count;
+    }
+
     public function show($id)
     {
         $student = Student::with([
@@ -83,8 +230,8 @@ class StudentController extends Controller
             'originSchools.educationLevel',
             'parents.educationLevel',
             'parents.incomeRange',
+            'classMemberships.studentClass.teacher',
             'documents.documentType',
-            'contacts.type',
             'village.subDistrict.city.province'
         ])
             ->findOrFail($id);
