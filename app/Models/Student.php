@@ -96,7 +96,7 @@ class Student extends Model
     public function originSchools(): HasMany
     {
         return $this->hasMany(StudentOriginSchool::class, 'aggregate_id')
-            ->where('aggregate_type', ProspectiveStudent::class);
+            ->where('aggregate_type', Student::class);
     }
 
     public function documents(): HasMany
@@ -108,13 +108,7 @@ class Student extends Model
     public function parents(): HasMany
     {
         return $this->hasMany(StudentParent::class, 'aggregate_id')
-            ->where('aggregate_type', ProspectiveStudent::class);
-    }
-
-    public function contacts(): HasMany
-    {
-        return $this->hasMany(StudentContact::class, 'aggregate_id')
-            ->where('aggregate_type', ProspectiveStudent::class);
+            ->where('aggregate_type', Student::class);
     }
 
     public function getDocumentStatusAttribute()
