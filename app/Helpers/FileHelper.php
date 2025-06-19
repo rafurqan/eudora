@@ -50,6 +50,19 @@ class FileHelper
 
         Storage::disk('public')->put("{$folder}/{$filename}", $decoded);
 
-        return $filename; // atau bisa Storage::url(...) kalau mau langsung URL
+        return $filename;
+    }
+
+    /**
+     * Hapus file dari storage/public/{folder}
+     */
+    public static function deleteFile(string $folder, string $filename): bool
+    {
+        $path = "{$folder}/{$filename}";
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->delete($path);
+        }
+
+        return false; // file tidak ditemukan
     }
 }

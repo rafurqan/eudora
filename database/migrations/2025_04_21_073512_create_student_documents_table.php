@@ -10,15 +10,14 @@ return new class extends Migration {
         Schema::create('student_documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->uuid('student_id');
+            $table->uuid('aggregate_id');
+            $table->string('aggregate_type');
             $table->uuid('document_type_id');
             $table->string('file_name');
             $table->timestamp('created_at');
             $table->uuid('created_by_id');
             $table->timestamp('updated_at')->nullable();
             $table->uuid('updated_by_id')->nullable();
-
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
         });
     }
 

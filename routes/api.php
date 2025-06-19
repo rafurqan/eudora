@@ -1,10 +1,17 @@
 <?php
 
+use App\Http\Controllers\API\Master\CityController;
 use App\Http\Controllers\API\Master\ContactTypeController;
 use App\Http\Controllers\API\Master\IncomeRangeController;
+use App\Http\Controllers\API\Master\ProgramController;
+use App\Http\Controllers\API\Master\ProvinceController;
 use App\Http\Controllers\API\Master\ReligionController;
 use App\Http\Controllers\API\Master\SchoolTypeController;
 use App\Http\Controllers\API\Master\SpecialConditionController;
+use App\Http\Controllers\API\Master\SubDistrictController;
+use App\Http\Controllers\API\Master\VillageController;
+use App\Http\Controllers\API\ProspectiveStudent\ProspectiveStudentController;
+use App\Http\Controllers\API\ProspectiveStudent\RegistrationCodeController;
 use App\Http\Controllers\API\Student\StudentAddressController;
 use App\Http\Controllers\API\Student\StudentContactController;
 use App\Http\Controllers\API\Student\StudentController;
@@ -15,28 +22,34 @@ use App\Http\Controllers\API\Authentication\AuthController;
 use App\Http\Controllers\API\Log\LogController;
 use App\Http\Controllers\API\Master\{
     DocumentTypeController,
+    DonationsTypesController,
+    DonorsController,
     EducationLevelController,
     GuardianRelationshipController,
     NationalityController,
     PermissionController,
     RolePermissionController,
     SpecialNeedController,
-    TransportationModeController
+    TransportationModeController,
+    ServiceController,
+    RateController,
+    RatePackageController,
+    GrantsController
+
 };
 use App\Http\Controllers\API\Student\{
     StudentClassController,
-    StudentDocumentController
+    StudentDocumentController,
+    ClassMembershipController
 };
 use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
+use PHPUnit\Architecture\Services\ServiceContainer;
 
 Route::prefix('v1')->group(function () {
 
     // AUTH ROUTES
     Route::prefix('auth')->group(function () {
-        Route::post('test', function () {
-            return response()->json(['message' => 'tes langsung route OK']);
-        });
         Route::post('login', [AuthController::class, 'login']);
         Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
         Route::get('user', [AuthController::class, 'user'])->middleware('auth:sanctum');
@@ -51,6 +64,7 @@ Route::prefix('v1')->group(function () {
         // MASTER DATA
         Route::prefix('master')->group(function () {
 
+            Route::apiResource('programs', ProgramController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('education-levels', EducationLevelController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('document-types', DocumentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('guardian-relationships', GuardianRelationshipController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -63,7 +77,20 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('contact-types', ContactTypeController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('special-conditions', SpecialConditionController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('school-types', SchoolTypeController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('villages', VillageController::class)->only(['index']);
+            Route::apiResource('sub-districts', SubDistrictController::class)->only(['index']);
+            Route::apiResource('cities', CityController::class)->only(['index']);
+            Route::apiResource('provinces', ProvinceController::class)->only(['index']);
 
+            // Master Biaya
+            Route::apiResource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('rates', RateController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('rates-package', RatePackageController::class)->only(['index', 'store', 'update', 'destroy']);
+
+            // Master Donasi
+            Route::apiResource('donors', DonorsController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('donation-types', DonationsTypesController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('grants', GrantsController::class)->only(['index', 'store', 'update', 'destroy']);
 
             Route::middleware(CheckPermission::class . ':List Permission')->get('permissions', [PermissionController::class, 'all']);
             Route::middleware(CheckPermission::class . ':Add Permission')->post('permissions', [PermissionController::class, 'create']);
@@ -76,6 +103,8 @@ Route::prefix('v1')->group(function () {
             Route::middleware(CheckPermission::class . ':Update Role Permission')->put('role-permissions/{id}', [RolePermissionController::class, 'update']);
         });
 
+
+        Route::get('students/all', [StudentController::class, 'getAllStudent']);
         Route::apiResource('students', StudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         // STUDENT DOCUMENTS
         Route::apiResource('students/{id}/documents', StudentDocumentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
@@ -83,8 +112,16 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('students/{id}/addresses', StudentAddressController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/parents', StudentParentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/contacts', StudentContactController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::get('class-memberships/all-students', [ClassMembershipController::class, 'getAllUniqueStudentsWithActiveClass']);
+        Route::apiResource('class-memberships', ClassMembershipController::class)->only(['index', 'store']);
+
 
         Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+
+        Route::apiResource('prospective-students', ProspectiveStudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::post('prospective-students/{id}/approve', [ProspectiveStudentController::class, 'approve']);
+        Route::get('prospective-students/registration-code/generate', [RegistrationCodeController::class, 'getNext']);
+
     });
 });
 

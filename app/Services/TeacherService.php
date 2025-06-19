@@ -50,11 +50,14 @@ class TeacherService
     public function update(string $id, array $data)
     {
         $data["updated_by_id"] = auth()->id();
+        $data['education_level_id'] = is_array($data['education_level'])
+            ? $data['education_level']['id'] ?? null
+            : ($data['education_level']->id ?? null);
+        unset($data['education_level']);
         DB::beginTransaction();
         try {
 
             $student = $this->teacherRepository->update($data, $id);
-            Log::info("Student updated", ['id' => $id]);
             DB::commit();
             return $student;
         } catch (Exception $e) {

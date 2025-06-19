@@ -17,6 +17,7 @@ class StudentClass extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
+
     protected $hidden = [
         'teacher_id'
     ];
@@ -28,7 +29,7 @@ class StudentClass extends Model
         'capacity',
         'academic_year',
         'teacher_id',
-        'education_level_id',
+        'program_id',
         'status',
         'created_at',
         'created_by_id',
@@ -36,14 +37,36 @@ class StudentClass extends Model
         'updated_by_id'
     ];
 
+    public static function booted()
+    {
+        static::deleting(function ($model) {
+            $usedIn = [];
+
+            if ($model->classMemberships()->exists()) {
+                $usedIn[] = 'Manajemen Kelas';
+            }
+
+            if (!empty($usedIn)) {
+                throw new \Exception('Tidak bisa dihapus karena digunakan di: ' . implode(', ', $usedIn));
+            }
+        });
+    }
+
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(Teacher::class, 'teacher_id');
     }
 
-    public function education(): BelongsTo
+    public function program(): BelongsTo
     {
-        return $this->belongsTo(EducationLevel::class, 'education_level_id');
+        return $this->belongsTo(Program::class, 'program_id');
     }
+
+    public function classMemberships()
+    {
+        return $this->hasMany(ClassMembership::class);
+    }
+
+
 
 }

@@ -76,7 +76,7 @@ class TeacherController extends Controller
         if (!$teacher) {
             return ResponseFormatter::error(null, 'Data not found', 404);
         }
-        $this->teacherService->update($data, $id);
+        $this->teacherService->update($id, $data);
 
         return ResponseFormatter::success([
             'id' => $teacher->id

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\Base64Image;
+use App\Rules\Base64File;
 use Illuminate\Foundation\Http\FormRequest;
 
 // app/Http/Requests/Master/StoreEducationLevelRequest.php
@@ -18,7 +18,7 @@ class UpdateStudentDocumentRequest extends FormRequest
         return [
             'name' => 'required',
             'document_type_id' => 'required',
-            'file' => ['required', 'string', new Base64Image],
+            'file' => ['required', 'string', new Base64File],
         ];
     }
 }

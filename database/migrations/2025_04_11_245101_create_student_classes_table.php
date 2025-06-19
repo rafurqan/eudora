@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->string('capacity');
             $table->string('academic_year');
             $table->uuid('teacher_id');
-            $table->uuid('education_level_id');
+            $table->uuid('program_id');
             $table->string('status');
             $table->timestamp('created_at');
             $table->uuid('created_by_id');

@@ -26,7 +26,8 @@ class StudentContact extends Model
 
     protected $fillable = [
         'id',
-        'student_id',
+        'aggregate_id',
+        'aggregate_type',
         'contact_type_id',
         'value',
         'created_at',

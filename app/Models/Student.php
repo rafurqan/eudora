@@ -17,7 +17,7 @@ class Student extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $appends = ['document_status','photo_url'];
+    protected $appends = ['document_status', 'photo_url'];
 
     protected $hidden = [
         'nationality_id',
@@ -34,10 +34,14 @@ class Student extends Model
         'nickname',
         'religion_id',
         'gender',
+        'village_id',
         'birth_place',
         'nationality_id',
         'birth_date',
         'nisn',
+        'street',
+        'email',
+        'phone',
         'child_order',
         'family_status',
         'special_need_id',
@@ -49,8 +53,10 @@ class Student extends Model
         'special_need',
         'additional_information',
         'has_kip',
+        'has_kps',
         'status',
         'eligible_for_kip',
+        'prospective_student_id',
         'created_at',
         'created_by_id',
         'updated_at',
@@ -82,40 +88,38 @@ class Student extends Model
         return $this->belongsTo(Nationality::class, 'nationality_id');
     }
 
-    public function addresses(): HasMany
+    public function village(): BelongsTo
     {
-        return $this->hasMany(StudentAddress::class, 'student_id');
+        return $this->belongsTo(Village::class, 'village_id');
     }
 
     public function originSchools(): HasMany
     {
-        return $this->hasMany(StudentOriginSchool::class, 'student_id');
+        return $this->hasMany(StudentOriginSchool::class, 'aggregate_id')
+            ->where('aggregate_type', Student::class);
     }
 
     public function documents(): HasMany
     {
-        return $this->hasMany(StudentDocument::class, 'student_id');
+        return $this->hasMany(StudentDocument::class, 'aggregate_id')
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function parents(): HasMany
     {
-        return $this->hasMany(StudentParent::class, 'student_id');
-    }
-
-    public function contacts(): HasMany
-    {
-        return $this->hasMany(StudentContact::class, 'student_id');
+        return $this->hasMany(StudentParent::class, 'aggregate_id')
+            ->where('aggregate_type', Student::class);
     }
 
     public function getDocumentStatusAttribute()
     {
         // Gunakan documents_count jika tersedia (hasil dari withCount)
         if (array_key_exists('documents_count', $this->attributes)) {
-            return $this->documents_count >= 2 ? 'Lengkap' : 'Belum Lengkap';
+            return $this->documents_count >= 1 ? 'Lengkap' : 'Belum Lengkap';
         }
 
         // Jika belum tersedia, fallback ke count manual (hanya untuk jaga-jaga)
-        return $this->documents()->count() >= 2 ? 'Lengkap' : 'Belum Lengkap';
+        return $this->documents()->count() >= 1 ? 'Lengkap' : 'Belum Lengkap';
     }
     public function getPhotoUrlAttribute(): ?string
     {
@@ -123,5 +127,15 @@ class Student extends Model
             return null;
 
         return asset("storage/photos/{$this->photo_filename}");
+    }
+
+    public function classMemberships()
+    {
+        return $this->hasMany(ClassMembership::class);
+    }
+
+    public function activeClassMembership()
+    {
+        return $this->hasOne(ClassMembership::class)->whereNull('end_at');
     }
 }

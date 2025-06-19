@@ -6,9 +6,11 @@ use App\Models\DocumentType;
 use App\Models\EducationLevel;
 use App\Models\IncomeRange;
 use App\Models\Nationality;
+use App\Models\Program;
 use App\Models\Religion;
 use App\Models\Role;
 use App\Models\SchoolType;
+use App\Models\Service;
 use App\Models\SpecialCondition;
 use App\Models\SpecialNeed;
 use App\Models\Student;
@@ -17,6 +19,12 @@ use App\Models\StudentParent;
 use App\Models\Teacher;
 use App\Models\TransportationMode;
 use App\Models\User;
+use App\Models\Rate;
+use App\Models\ProgramSchool;
+use App\Models\RatePackage;
+use App\Models\Donor;
+use App\Models\DonationType;
+use App\Models\Grant;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Hash;
 use Illuminate\Database\Seeder;
@@ -95,6 +103,19 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
+
+        $programId = uuid_create();
+        Program::create([
+            'id' => $programId,
+            'name' => 'MI Tahfidz',
+            'level' => 'Dasar',
+            'status' => 'ACTIVE',
+            'description' => 'Khusus tahfidz',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
         $educationLevelId = uuid_create();
         EducationLevel::create([
             'id' => $educationLevelId,
@@ -135,7 +156,7 @@ class DatabaseSeeder extends Seeder
             'gender' => 'male',
             'birth_place' => 'PADANG',
             'birth_date' => now(),
-            'status' => 'waiting',
+            'status' => 'approved',
             'nisn' => '',
             'nationality_id' => $nationalityId,
             'transportation_mode_id' => $modaTransportationId,
@@ -155,9 +176,11 @@ class DatabaseSeeder extends Seeder
         $studentOriginSchoolId = uuid_create();
         StudentOriginSchool::create([
             'id' => $studentOriginSchoolId,
-            'student_id' => $studentId,
+            'aggregate_id' => $studentId,
+            'aggregate_type' => Student::class,
             'school_name' => 'SMP Negeri 1',
             'school_type_id' => $schoolTypeId,
+            'graduation_year' => '2020',
             'npsn' => '0012345678',
             'address_name' => 'Padang',
             'education_level_id' => $educationLevelId,
@@ -169,7 +192,8 @@ class DatabaseSeeder extends Seeder
         $studentParent = uuid_create();
         StudentParent::create([
             'id' => $studentParent,
-            'student_id' => $studentId,
+            'aggregate_id' => $studentId,
+            'aggregate_type' => Student::class,
             'parent_type' => 'father',
             'full_name' => 'Budi Anzar',
             'nik' => '1234567890123456',
@@ -177,7 +201,9 @@ class DatabaseSeeder extends Seeder
             'occupation' => 'Guru',
             'income_range_id' => $incomeRangeId,
             'phone' => '081234567890',
-            'is_guardian'=> true,
+            'email' => 'test@email.com',
+            'is_main_contact' => true,
+            'is_emergency_contact' => false,
             'education_level_id' => $educationLevelId,
             'created_by_id' => $userId,
             'created_at' => now(),
@@ -196,5 +222,75 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
+        // Program
+        $programId = uuid_create();
+        ProgramSchool::create([
+            'id' => $programId,
+            'name' => 'Sekolah Menengah Atas',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        // Layanan
+        $servicesId = uuid_create();
+        Service::create([
+            'id' => $servicesId,
+            'name' => 'SPP Bulanan',
+            'is_active' => 'Y',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null,
+        ]);
+        // Tarif
+        $rateId = uuid_create();
+        Rate::create([
+            'id' => $rateId,
+            'service_id' => $servicesId,
+            'child_ids' => null,
+            'program_id' => $programId,
+            'price' => 150000,
+            'is_active' => 'Y',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        // Donor
+        $donorId = uuid_create();
+        Donor::create([
+            'id' => $donorId,
+            'name' => 'John Doe',
+            'is_active' => 'Y',
+            'created_by_id' => $userId,
+            'updated_by_id' => null,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        // DonationType
+        $donationTypeId = uuid_create();
+        DonationType::create([
+            'id' => $donationTypeId,
+            'name' => 'Scholarship',
+            'created_by_id' => $userId,
+            'updated_by_id' => null,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        // // Grant
+        // $grantId = uuid_create();
+        // Grant::create([
+        //     'id' => $grantId,
+        //     'donor_id' => $donorId,
+        //     'donation_type_id' => $donationTypeId,
+        //     'is_active' => 'Y',
+        //     'description' => 'Science Grant',
+        //     'total_funds' => 5000,
+        //     'grant_expiration_date' => now()->addYear(),
+        //     'created_by_id' => $userId,
+        //     'created_at' => now(),
+        //     'updated_at' => null
+        // ]);
+
     }
 }
