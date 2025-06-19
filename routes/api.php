@@ -34,6 +34,9 @@ Route::prefix('v1')->group(function () {
 
     // AUTH ROUTES
     Route::prefix('auth')->group(function () {
+        Route::post('test', function () {
+            return response()->json(['message' => 'tes langsung route OK']);
+        });
         Route::post('login', [AuthController::class, 'login']);
         Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
         Route::get('user', [AuthController::class, 'user'])->middleware('auth:sanctum');
@@ -81,7 +84,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('students/{id}/parents', StudentParentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/contacts', StudentContactController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 
-        Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy','show']);
+        Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
     });
 });
 
