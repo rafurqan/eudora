@@ -104,6 +104,7 @@ Route::prefix('v1')->group(function () {
         });
 
 
+        Route::get('students/all', [StudentController::class, 'getAllStudent']);
         Route::apiResource('students', StudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         // STUDENT DOCUMENTS
         Route::apiResource('students/{id}/documents', StudentDocumentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
@@ -123,6 +124,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('prospective-students', ProspectiveStudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::post('prospective-students/{id}/approve', [ProspectiveStudentController::class, 'approve']);
         Route::get('prospective-students/registration-code/generate', [RegistrationCodeController::class, 'getNext']);
+
     });
 });
 
