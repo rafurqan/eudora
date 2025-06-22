@@ -16,6 +16,7 @@ class StudentClassController extends Controller
     public function index()
     {
         $studentClass = StudentClass::with(['teacher', 'program'])
+            ->where('status', 'ACTIVE') 
             ->withCount([
                 'classMemberships as class_membership_count' => function (Builder $query) {
                     $query->whereNull('end_at');
@@ -23,8 +24,10 @@ class StudentClassController extends Controller
             ])
             ->orderBy('name', 'asc')
             ->get();
+
         return ResponseFormatter::success($studentClass, 'List Student Class');
     }
+
 
 
     public function store(CreateStudentClassRequest $request)

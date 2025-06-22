@@ -14,13 +14,15 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
-
+use App\Models\InvoiceCodeReservation;
 
 class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $invoice = Invoice::orderBy('created_at', 'desc')->get();
+        $invoice = Invoice::with('entity', 'studentClass')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
         
         if ($invoice->isEmpty()) {
             return ResponseFormatter::error(null, 'Data tidak ditemukan', 404);
@@ -28,25 +30,87 @@ class InvoiceController extends Controller
         return ResponseFormatter::success($invoice, 'Data Invoice Ditemukan');
     }
 
-    function generateInvoiceCode(): JsonResponse
+    // public function index(Request $request)
+    // {
+    //     $search = $request->input('search');
+    //     $status = $request->input('status');
+    //     $perPage = $request->input('per_page', 10);
+
+    //     $query = Invoice::with('entity', 'studentClass')->orderBy('created_at', 'desc');
+
+    //     if ($search) {
+    //         $query->where(function($q) use ($search) {
+    //             $q->where('code', 'like', "%$search%")
+    //             ->orWhere('notes', 'like', "%$search%");
+    //         });
+    //     }
+
+    //     if ($status && $status != 'Semua Status') {
+    //         $query->where('status', $status);
+    //     }
+
+    //     $invoice = $query->paginate($perPage);
+
+    //     return ResponseFormatter::success($invoice, 'List Invoice');
+
+    // }
+
+    public function show($id)
     {
-        $today = Carbon::today();
-        $year = $today->format('Y');
-        $month = $today->format('m');
-        $day = $today->format('d');
+        $invoice = Invoice::with([
+            'items.rate.service', // eager load nested relation
+            'studentClass',
+            'entity'
+        ])->find($id);
 
-        // Hitung jumlah invoice yang dibuat di bulan ini
-        $count = DB::table('invoice')
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->count();
+        if (!$invoice) {
+            return ResponseFormatter::error(null, 'Invoice tidak ditemukan', 404);
+        }
 
-        $sequence = str_pad($count + 1, 4, '0', STR_PAD_LEFT);
-        $code = "INV-{$year}-{$month}-{$day}-{$sequence}";
+        $invoice->selected_items = $invoice->items->map(function ($item) {
+            return [
+                'id' => $item->rate_id,
+                'rate_id' => $item->rate_id,
+                'service_id' => $item->rate->service->id ?? null,
+                'service_name' => $item->rate->service->name ?? null,
+                'price' => $item->amount_rate,
+                'frequency' => $item->frequency,
+            ];
+        });
 
-        $sequence = $count + 1;
+        return ResponseFormatter::success($invoice, 'Detail invoice ditemukan');
+    }
 
-        return ResponseFormatter::success(['invoice_code' => $code], 'Invoice code generated successfully');
+
+    public function generateInvoiceCode(): JsonResponse
+    {
+        return DB::transaction(function () {
+            $today = now(); // Contoh: 2025-06-15
+            $prefixToday = $today->format('Y-m-d');       // untuk format akhir kode
+            $prefixMonth = $today->format('Y-m');         // untuk pencarian berdasarkan bulan
+            $prefix = "INV-{$prefixMonth}";               // untuk filter kode yang sudah ada bulan ini
+
+            // Ambil kode terakhir dalam bulan yang sama
+            $lastCode = DB::table('invoice_code_reservations')
+                ->where('code', 'like', "{$prefix}-%")
+                ->lockForUpdate()
+                ->orderByDesc('code')
+                ->value('code');
+
+            $lastNumber = $lastCode
+                ? (int) substr($lastCode, -4)
+                : 0;
+
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            $newCode = "INV-{$prefixToday}-{$newNumber}";
+
+            InvoiceCodeReservation::create([
+                'code' => $newCode,
+                'reserved_at' => now(),
+            ]);
+
+            return ResponseFormatter::success(['invoice_code' => $newCode], 'Invoice code generated successfully');
+        });
     }
 
     public function store(CreateInvoiceRequest $request)
@@ -54,7 +118,7 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
-            // Mapping entity_type menjadi nama class model
+            // Mapping entity_type ke model
             $entityClassMap = [
                 'student' => \App\Models\Student::class,
                 'prospective_student' => \App\Models\ProspectiveStudent::class,
@@ -63,7 +127,6 @@ class InvoiceController extends Controller
             $entityTypeInput = $request->input('entity_type');
             $entityId = $request->input('entity_id');
 
-            // Validasi entity_type yang diizinkan
             if (!isset($entityClassMap[$entityTypeInput])) {
                 return ResponseFormatter::error(null, 'Jenis entity tidak valid', 422);
             }
@@ -71,28 +134,50 @@ class InvoiceController extends Controller
             $entityClass = $entityClassMap[$entityTypeInput];
             $entity = $entityClass::findOrFail($entityId);
 
-            // Buat invoice melalui relasi morphMany
+            // === GENERATE CODE DI SINI SECARA TRANSAKSI ===
+            $today = now()->format('Y-m-d');  // 2025-06-15
+            $prefix = "INV-{$today}";
+
+            $lastCode = DB::table('invoice_code_reservations')
+                ->where('code', 'like', "{$prefix}-%")
+                ->lockForUpdate()
+                ->orderByDesc('code')
+                ->value('code');
+
+            $lastNumber = $lastCode ? (int) substr($lastCode, -4) : 0;
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            $newCode = "{$prefix}-{$newNumber}";
+
+            // Simpan ke tabel reservasi sebagai log
+            InvoiceCodeReservation::create([
+                'code' => $newCode,
+                'reserved_at' => now(),
+                'used' => true,
+            ]);
+
+            // create invoice
             $invoice = $entity->invoices()->create([
-                'code' => $request->invoice_number,
+                'code' => $newCode,
                 'student_name' => $request->student_name,
                 'student_type' => $request->student_type,
-                'class_id' => $request->class,
+                'student_class' => $request->class,
                 'class_name' => $request->class_name,
-                'issue_date' => $request->issue_date,
+                'publication_date' => $request->issue_date,
                 'due_date' => $request->due_date,
                 'invoice_type' => $request->invoice_type,
                 'notes' => $request->notes,
                 'status' => 'draft',
-                'total' => collect($request->selected_items)->sum('price'),
+                'total' => collect($request->selected_items)->sum(fn($item) => $item['price'] * $item['frequency']),
                 'created_by_id' => $request->user()->id,
             ]);
 
+            // create invoice items
             foreach ($request->selected_items as $item) {
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
                     'service_id' => $item['service_id'],
                     'amount_rate' => $item['price'],
-                    'rate_id' => $item['id'], // ini adalah rate_id
+                    'rate_id' => $item['id'],
                     'frequency' => $item['frequency'],
                 ]);
             }
@@ -109,12 +194,79 @@ class InvoiceController extends Controller
 
     public function update(UpdateInvoiceRequest $request, $id)
     {
-       
+        DB::beginTransaction();
+
+        try {
+            $invoice = Invoice::with('items')->find($id);
+            if (!$invoice) {
+                return ResponseFormatter::error(null, 'Invoice tidak ditemukan', 404);
+            }
+
+            // Update field utama invoice
+            $invoice->update([
+                'student_name' => $request->student_name,
+                'student_type' => $request->student_type,
+                'student_class' => $request->class,
+                'class_name' => $request->class_name,
+                'issue_date' => $request->issue_date,
+                'due_date' => $request->due_date,
+                'invoice_type' => $request->invoice_type,
+                'notes' => $request->notes,
+                'total' => collect($request->selected_items)->sum(fn($item) => $item['price'] * $item['frequency']),
+                'updated_by_id' => $request->user()->id,
+            ]);
+
+            // Hapus semua invoice item lama (soft delete)
+            $invoice->items()->delete();
+
+            // Tambahkan ulang item baru
+            foreach ($request->selected_items as $item) {
+                InvoiceItem::create([
+                    'invoice_id' => $invoice->id,
+                    'service_id' => $item['service_id'],
+                    'amount_rate' => $item['price'],
+                    'rate_id' => $item['id'],
+                    'frequency' => $item['frequency'],
+                ]);
+            }
+
+            DB::commit();
+            return ResponseFormatter::success($invoice->load('items'), 'Invoice berhasil diperbarui');
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error(null, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
+        }
     }
 
-    public function destroy($id)
+
+    public function destroy(Request $request, $id)
     {
-    
+        try {
+            DB::beginTransaction();
+
+            // 1. Ambil invoice beserta relasi item-nya
+            $invoice = Invoice::with('items')->find($id);
+            if (!$invoice) {
+                return ResponseFormatter::error(null, 'Data Invoice Tidak ditemukan', 404);
+            }
+
+            // 2. Soft delete semua item terkait
+            foreach ($invoice->items as $item) {
+                $item->delete();
+            }
+
+            // 3. Soft delete invoice
+            $invoice->delete();
+
+            DB::commit();
+            return ResponseFormatter::success(null, 'Berhasil menghapus Invoice');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseFormatter::error(null, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
+        }
     }
+
 
 }

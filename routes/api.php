@@ -11,6 +11,7 @@ use App\Http\Controllers\API\Master\SpecialConditionController;
 use App\Http\Controllers\API\Master\SubDistrictController;
 use App\Http\Controllers\API\Master\VillageController;
 use App\Http\Controllers\API\ProspectiveStudent\ProspectiveStudentController;
+use App\Http\Controllers\API\ProspectiveStudent\RegistrationCodeController;
 use App\Http\Controllers\API\Student\StudentAddressController;
 use App\Http\Controllers\API\Student\StudentContactController;
 use App\Http\Controllers\API\Student\StudentController;
@@ -114,12 +115,14 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('class-memberships', ClassMembershipController::class)->only(['index', 'store']);
 
         //Invoice Routes
-        Route::apiResource('finance/invoices', InvoiceController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::apiResource('finance/invoices', InvoiceController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::get('finance/invoices/generate-invoice-code', [InvoiceController::class, 'generateInvoiceCode']);
 
         Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 
         Route::apiResource('prospective-students', ProspectiveStudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::post('prospective-students/{id}/approve', [ProspectiveStudentController::class, 'approve']);
+        Route::get('prospective-students/registration-code/generate', [RegistrationCodeController::class, 'getNext']);
     });
 });
 

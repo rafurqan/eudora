@@ -37,6 +37,21 @@ class StudentClass extends Model
         'updated_by_id'
     ];
 
+    public static function booted()
+    {
+        static::deleting(function ($model) {
+            $usedIn = [];
+
+            if ($model->classMemberships()->exists()) {
+                $usedIn[] = 'Manajemen Kelas';
+            }
+
+            if (!empty($usedIn)) {
+                throw new \Exception('Tidak bisa dihapus karena digunakan di: ' . implode(', ', $usedIn));
+            }
+        });
+    }
+
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(Teacher::class, 'teacher_id');
@@ -51,5 +66,7 @@ class StudentClass extends Model
     {
         return $this->hasMany(ClassMembership::class);
     }
+
+
 
 }

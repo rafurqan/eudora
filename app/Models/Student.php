@@ -45,7 +45,6 @@ class Student extends Model
         'child_order',
         'family_status',
         'special_need_id',
-        'prospective_student_id',
         'special_condition_id',
         'transportation_mode_id',
         'photo_filename',
@@ -57,6 +56,7 @@ class Student extends Model
         'has_kps',
         'status',
         'eligible_for_kip',
+        'prospective_student_id',
         'created_at',
         'created_by_id',
         'updated_at',
@@ -96,36 +96,36 @@ class Student extends Model
     public function originSchools(): HasMany
     {
         return $this->hasMany(StudentOriginSchool::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function documents(): HasMany
     {
         return $this->hasMany(StudentDocument::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function parents(): HasMany
     {
         return $this->hasMany(StudentParent::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function contacts(): HasMany
     {
         return $this->hasMany(StudentContact::class, 'aggregate_id')
-            ->where('aggregate_type', Student::class);
+            ->where('aggregate_type', ProspectiveStudent::class);
     }
 
     public function getDocumentStatusAttribute()
     {
         // Gunakan documents_count jika tersedia (hasil dari withCount)
         if (array_key_exists('documents_count', $this->attributes)) {
-            return $this->documents_count >= 2 ? 'Lengkap' : 'Belum Lengkap';
+            return $this->documents_count >= 1 ? 'Lengkap' : 'Belum Lengkap';
         }
 
         // Jika belum tersedia, fallback ke count manual (hanya untuk jaga-jaga)
-        return $this->documents()->count() >= 2 ? 'Lengkap' : 'Belum Lengkap';
+        return $this->documents()->count() >= 1 ? 'Lengkap' : 'Belum Lengkap';
     }
     public function getPhotoUrlAttribute(): ?string
     {

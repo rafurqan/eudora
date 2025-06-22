@@ -27,4 +27,19 @@ class InvoiceItem extends Model
         'created_by_id',
         'updated_by_id'
     ];
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
+
+    public function rate()
+    {
+        return $this->belongsTo(\App\Models\Rate::class, 'rate_id');
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(\App\Models\Service::class, 'service_id');
+    }
 }

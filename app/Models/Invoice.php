@@ -38,5 +38,15 @@ class Invoice extends Model
         'updated_at',
         'updated_by_id'
     ];
+
+    public function studentClass()
+    {
+        return $this->belongsTo(StudentClass::class, 'student_class');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(InvoiceItem::class);
+    }
     
 }
