@@ -20,40 +20,73 @@ class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $invoice = Invoice::with('entity', 'studentClass')
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-        
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $perPage = $request->input('per_page', 0); // 0 berarti tanpa pagination
+
+        $query = Invoice::with('entity', 'studentClass')->orderBy('created_at', 'desc');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('code', 'like', "%$search%")
+                ->orWhere('notes', 'like', "%$search%");
+            });
+
+            $query->orWhereHasMorph('entity', [\App\Models\Student::class, \App\Models\ProspectiveStudent::class], function ($q) use ($search) {
+            $q->where('full_name', 'like', "%$search%");
+            });
+        }
+
+        if ($status && $status !== 'Semua Status') {
+            $query->where('status', $status);
+        }
+
+        if ($perPage > 0) {
+            $invoice = $query->paginate($perPage);
+        } else {
+            $invoice = $query->get();
+        }
+
         if ($invoice->isEmpty()) {
             return ResponseFormatter::error(null, 'Data tidak ditemukan', 404);
         }
+
         return ResponseFormatter::success($invoice, 'Data Invoice Ditemukan');
     }
 
-    // public function index(Request $request)
-    // {
-    //     $search = $request->input('search');
-    //     $status = $request->input('status');
-    //     $perPage = $request->input('per_page', 10);
+    public function statistics()
+    {
+        $query = Invoice::query();
 
-    //     $query = Invoice::with('entity', 'studentClass')->orderBy('created_at', 'desc');
+        $totalCount = $query->count();
+        $totalAmount = $query->sum('total');
 
-    //     if ($search) {
-    //         $query->where(function($q) use ($search) {
-    //             $q->where('code', 'like', "%$search%")
-    //             ->orWhere('notes', 'like', "%$search%");
-    //         });
-    //     }
+        // Status berdasarkan enum atau nilai tetap
+        $statuses = ['Menunggu Pembayaran', 'Terlambat', 'Lunas'];
 
-    //     if ($status && $status != 'Semua Status') {
-    //         $query->where('status', $status);
-    //     }
+        // Looping semua status untuk dapatkan count & amount
+        $statusData = [];
+        foreach ($statuses as $status) {
+            $count = Invoice::where('status', $status)->count();
+            $amount = Invoice::where('status', $status)->sum('total');
 
-    //     $invoice = $query->paginate($perPage);
+            $statusData[] = [
+                'status' => $status,
+                'count' => $count,
+                'amount' => $amount,
+            ];
+        }
 
-    //     return ResponseFormatter::success($invoice, 'List Invoice');
+        $data = [
+            'total' => [
+                'count' => $totalCount,
+                'amount' => $totalAmount,
+            ],
+            'per_status' => $statusData,
+        ];
 
-    // }
+        return ResponseFormatter::success($data, 'Statistik invoice ditemukan');
+    }
 
     public function show($id)
     {
@@ -85,12 +118,12 @@ class InvoiceController extends Controller
     public function generateInvoiceCode(): JsonResponse
     {
         return DB::transaction(function () {
-            $today = now(); // Contoh: 2025-06-15
-            $prefixToday = $today->format('Y-m-d');       // untuk format akhir kode
-            $prefixMonth = $today->format('Y-m');         // untuk pencarian berdasarkan bulan
-            $prefix = "INV-{$prefixMonth}";               // untuk filter kode yang sudah ada bulan ini
+            $today = now();
+            $prefixMonth = $today->format('Y-m'); 
+            $date = $today->format('Y-m-d');      
+            $prefix = "INV-{$prefixMonth}";       
 
-            // Ambil kode terakhir dalam bulan yang sama
+            // Ambil kode terakhir di bulan ini
             $lastCode = DB::table('invoice_code_reservations')
                 ->where('code', 'like', "{$prefix}-%")
                 ->lockForUpdate()
@@ -102,7 +135,7 @@ class InvoiceController extends Controller
                 : 0;
 
             $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-            $newCode = "INV-{$prefixToday}-{$newNumber}";
+            $newCode = "INV-{$date}-{$newNumber}";
 
             InvoiceCodeReservation::create([
                 'code' => $newCode,
@@ -112,6 +145,7 @@ class InvoiceController extends Controller
             return ResponseFormatter::success(['invoice_code' => $newCode], 'Invoice code generated successfully');
         });
     }
+
 
     public function store(CreateInvoiceRequest $request)
     {
@@ -135,26 +169,30 @@ class InvoiceController extends Controller
             $entity = $entityClass::findOrFail($entityId);
 
             // === GENERATE CODE DI SINI SECARA TRANSAKSI ===
-            $today = now()->format('Y-m-d');  // 2025-06-15
-            $prefix = "INV-{$today}";
+            $today = now();
+            $prefixMonth = $today->format('Y-m'); 
+            $date = $today->format('Y-m-d');      
+            $prefix = "INV-{$prefixMonth}";       
 
+            // Ambil kode terakhir di bulan ini
             $lastCode = DB::table('invoice_code_reservations')
                 ->where('code', 'like', "{$prefix}-%")
                 ->lockForUpdate()
                 ->orderByDesc('code')
                 ->value('code');
 
-            $lastNumber = $lastCode ? (int) substr($lastCode, -4) : 0;
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-            $newCode = "{$prefix}-{$newNumber}";
+            $lastNumber = $lastCode
+                ? (int) substr($lastCode, -4)
+                : 0;
 
-            // Simpan ke tabel reservasi sebagai log
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            $newCode = "INV-{$date}-{$newNumber}";
+
             InvoiceCodeReservation::create([
                 'code' => $newCode,
                 'reserved_at' => now(),
-                'used' => true,
             ]);
-
+            
             // create invoice
             $invoice = $entity->invoices()->create([
                 'code' => $newCode,

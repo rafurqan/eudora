@@ -116,8 +116,10 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('class-memberships', ClassMembershipController::class)->only(['index', 'store']);
 
         //Invoice Routes
-        Route::apiResource('finance/invoices', InvoiceController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::get('finance/invoices/statistics', [InvoiceController::class, 'statistics']);
         Route::get('finance/invoices/generate-invoice-code', [InvoiceController::class, 'generateInvoiceCode']);
+        Route::apiResource('finance/invoices', InvoiceController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+
 
         Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 

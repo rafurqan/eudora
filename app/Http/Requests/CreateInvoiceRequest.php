@@ -41,7 +41,7 @@ class CreateInvoiceRequest extends FormRequest
 
             // 'invoice_number' => 'required|string|unique:invoice,code',
             'student_name' => 'required|string',
-            'student_type' => 'required|string',
+            // 'student_type' => 'required|string',
             'class' => 'required|uuid',
             'class_name' => 'nullable|string',
             'issue_date' => 'required|date',

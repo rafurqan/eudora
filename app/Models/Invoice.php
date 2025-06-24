@@ -33,6 +33,7 @@ class Invoice extends Model
         'status',
         'total',
         'delivered_wa',
+        'invoice_type',
         'created_at',
         'created_by_id',
         'updated_at',
