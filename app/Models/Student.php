@@ -138,4 +138,14 @@ class Student extends Model
     {
         return $this->hasOne(ClassMembership::class)->whereNull('end_at');
     }
+
+    public function prospectiveStudent()
+    {
+        return $this->belongsTo(ProspectiveStudent::class, 'prospective_student_id');
+    }
+
+    public function invoices()
+    {
+        return $this->morphMany(Invoice::class, 'entity');
+    }
 }

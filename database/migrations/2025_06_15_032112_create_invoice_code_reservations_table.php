@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('grants', function (Blueprint $table) {
-            $table->timestamp('acceptance_date')->nullable();
+        Schema::create('invoice_code_reservations', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('code')->unique();
+            $table->timestamp('reserved_at');
+            $table->boolean('used')->default(false);
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('grants', function (Blueprint $table) {
-            $table->dropColumn('acceptance_date');
-        });
+        Schema::dropIfExists('invoice_code_reservations');
     }
 };

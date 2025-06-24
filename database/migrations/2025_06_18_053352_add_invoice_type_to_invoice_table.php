@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('grants', function (Blueprint $table) {
-            $table->timestamp('acceptance_date')->nullable();
+        Schema::table('invoice', function (Blueprint $table) {
+            $table->string('invoice_type')->nullable();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('grants', function (Blueprint $table) {
-            $table->dropColumn('acceptance_date');
+        Schema::table('invoice', function (Blueprint $table) {
+            $table->dropColumn('invoice_type');
         });
     }
 };
