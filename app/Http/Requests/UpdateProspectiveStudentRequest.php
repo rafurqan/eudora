@@ -3,7 +3,6 @@ namespace App\Http\Requests;
 
 use App\Rules\Base64File;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateProspectiveStudentRequest extends FormRequest
 {
@@ -15,11 +14,7 @@ class UpdateProspectiveStudentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'registration_code' => [
-                'required|string|unique:students,registration_code|max:50',
-                Rule::unique('students', 'registration_code')
-                    ->ignore($this->student->id),
-            ],
+            'registration_code' => 'required|string|unique:students,registration_code|max:50',
             'full_name' => 'required|string|max:100',
             'nickname' => 'nullable|string|max:50',
             'religion.id' => 'nullable|uuid|exists:religions,id',
