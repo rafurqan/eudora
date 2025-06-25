@@ -59,6 +59,7 @@ class CreateProspectiveStudentRequest extends FormRequest
             'parents.*.parent_type' => 'required|in:father,mother,guardian,other',
             'parents.*.full_name' => 'required|string|max:100',
             'parents.*.nik' => 'nullable|string|max:20',
+            'parents.*.address' => 'nullable|string',
             'parents.*.birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'parents.*.education_level.id' => 'nullable|uuid|exists:education_levels,id',
             'parents.*.occupation' => 'nullable|string',

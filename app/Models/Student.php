@@ -102,7 +102,7 @@ class Student extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(StudentDocument::class, 'aggregate_id')
-            ->where('aggregate_type', ProspectiveStudent::class);
+            ->where('aggregate_type', Student::class);
     }
 
     public function parents(): HasMany

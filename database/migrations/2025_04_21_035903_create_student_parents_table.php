@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('aggregate_type');
             $table->string('parent_type');
             $table->string('full_name');
+            $table->string('address')->nullable();
             $table->string('nik')->nullable();
             $table->year('birth_year')->nullable();
             $table->foreignUuid('education_level_id')->nullable()->constrained()->nullOnDelete();
