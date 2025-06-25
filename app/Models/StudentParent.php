@@ -37,6 +37,7 @@ class StudentParent extends Model
         'income_range_id',
         'phone',
         'email',
+        'address',
         'is_main_contact',
         'is_emergency_contact',
         'created_at',
