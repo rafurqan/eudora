@@ -489,7 +489,7 @@ class StudentController extends Controller
                 $existingSchoolIds[] = $schoolModel->id;
             }
             StudentOriginSchool::where('aggregate_id', $id)
-                ->where('aggregate_type', ProspectiveStudent::class)
+                ->where('aggregate_type', Student::class)
                 ->whereNotIn('id', $existingSchoolIds)
                 ->delete();
 
