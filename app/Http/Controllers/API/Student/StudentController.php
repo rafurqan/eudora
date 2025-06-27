@@ -604,6 +604,7 @@ class StudentController extends Controller
         try {
             $student->status = $validated['status'];
             $student->save();
+            DB::commit();
 
             return ResponseFormatter::success([
                 'id' => $student->id,
