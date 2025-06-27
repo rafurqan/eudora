@@ -14,6 +14,7 @@ use App\Models\StudentContact;
 use App\Models\StudentDocument;
 use App\Models\StudentOriginSchool;
 use App\Models\StudentParent;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -584,6 +585,33 @@ class StudentController extends Controller
                 'Failed to update student. Please try again later. Error: ' . $e->getMessage(), // Detail error untuk dev
                 500
             );
+        }
+    }
+
+    public function changeStatus($id, Request $request)
+    {
+        $user = $request->user();
+        $validated = $request->validate([
+            'status' => 'required|in:approved,rejected,waiting,active,inactive',
+        ]);
+        try {
+            $student = Student::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return ResponseFormatter::error(null, 'siswa tidak ditemukan.', 404);
+        }
+
+        DB::beginTransaction();
+        try {
+            $student->status = $validated['status'];
+            $student->save();
+
+            return ResponseFormatter::success([
+                'id' => $student->id,
+                'status' => $student->status,
+            ], 'Status siswa berhasil diubah.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseFormatter::error(null, 'Gagal mengubah status siswa. Error: ' . $e->getMessage(), 500);
         }
     }
 }
