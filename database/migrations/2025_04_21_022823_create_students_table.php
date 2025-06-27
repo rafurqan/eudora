@@ -17,7 +17,7 @@ return new class extends Migration {
 
 
             $table->string('birth_place');
-            $table->enum('status', ['waiting', 'approved', 'rejected']);
+            $table->enum('status', ['waiting', 'approved', 'rejected', 'active', 'inactive']);
             $table->date('birth_date');
             $table->string('nisn')->nullable();
             $table->string('phone')->nullable();

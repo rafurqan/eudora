@@ -113,6 +113,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('students/{id}/addresses', StudentAddressController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/parents', StudentParentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::apiResource('students/{id}/contacts', StudentContactController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
+        Route::post('students/{id}/change-status', [StudentController::class, 'changeStatus']);
         Route::get('class-memberships/all-students', [ClassMembershipController::class, 'getAllUniqueStudentsWithActiveClass']);
         Route::apiResource('class-memberships', ClassMembershipController::class)->only(['index', 'store']);
 
