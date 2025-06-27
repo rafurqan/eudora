@@ -29,13 +29,17 @@ class StudentController extends Controller
         $perPage = $request->input('per_page', 10);
 
         $paginated = $this->getStudent($keyword, $perPage);
+        $summary = $this->getStudentSummary($keyword);
 
         return ResponseFormatter::success(
             $paginated->items(),
             'List Student',
             $paginated->total(),
             $paginated->currentPage(),
-            $paginated->perPage()
+            $paginated->perPage(),
+            [
+                'summary' => $summary,
+            ]
         );
     }
 
@@ -65,6 +69,45 @@ class StudentController extends Controller
         }
 
         return $query->paginate($perPage);
+    }
+
+    private function getStudentSummary($keyword)
+    {
+        $query = Student::with(['specialCondition', 'specialNeed']);
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('full_name', 'ilike', '%' . $keyword . '%')
+                    ->orWhere('nickname', 'ilike', '%' . $keyword . '%')
+                    ->orWhere('registration_code', 'ilike', '%' . $keyword . '%');
+            });
+        }
+
+        $students = $query->get();
+
+        $total = $students->count();
+
+        $totalApproved = $students->where('status', 'approved')->count();
+
+        $totalYatim = $students->filter(function ($student) {
+            return $student->specialCondition && stripos($student->specialCondition->name, 'yatim') !== false;
+        })->count();
+
+        $totalAnakGuru = $students->filter(function ($student) {
+            return $student->specialCondition && stripos($student->specialCondition->name, 'anak guru') !== false;
+        })->count();
+
+        $totalSpecialNeed = $students->filter(function ($student) {
+            return $student->specialNeed !== null;
+        })->count();
+
+        return [
+            'total' => $total,
+            'approved' => $totalApproved,
+            'orphan' => $totalYatim,
+            'teacher_child' => $totalAnakGuru,
+            'special_needs' => $totalSpecialNeed,
+        ];
     }
 
     public function getAllStudent()

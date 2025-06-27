@@ -27,22 +27,27 @@ class ResponseFormatter
     /**
      * Give success response with pagination support.
      */
-    public static function success($data = null, $message = null, $total = 0, $page = 1, $perPage = 10)
+    public static function success($data = null, $message = null, $total = 0, $page = 1, $perPage = 10, $extra = [])
     {
         // Mengupdate meta data pagination
         self::$response['meta']['message'] = $message;
+
         if ($total > 0) {
             self::$response['meta']['total'] = $total;
             self::$response['meta']['page'] = $page;
             self::$response['meta']['per_page'] = $perPage;
-            self::$response['meta']['last_page'] = ceil($total / $perPage); // Menghitung halaman terakhir berdasarkan total dan per_page
+            self::$response['meta']['last_page'] = ceil($total / $perPage);
         }
 
-        // Jika data kosong, bisa mengirimkan array kosong
         self::$response['data'] = $data ?? [];
+
+        if (!empty($extra)) {
+            self::$response['extra'] = $extra;
+        }
 
         return response()->json(self::$response, self::$response['meta']['code']);
     }
+
 
     /**
      * Give error response.
