@@ -21,14 +21,13 @@ use Illuminate\Support\Str;
 
 class ProspectiveStudentController extends Controller
 {
-
     public function index(Request $request)
     {
-
         $keyword = $request->input('keyword');
+        $status = $request->input('status');
         $perPage = $request->input('per_page', 10);
 
-        $paginated = $this->getProspectiveStudent($keyword, $perPage);
+        $paginated = $this->getProspectiveStudent($keyword, $status, $perPage);
 
         return ResponseFormatter::success(
             $paginated->items(),
@@ -39,7 +38,7 @@ class ProspectiveStudentController extends Controller
         );
     }
 
-    private function getProspectiveStudent($keyword, $perPage)
+    private function getProspectiveStudent($keyword, $status, $perPage)
     {
         $query = ProspectiveStudent::with([
             'nationality',
@@ -54,8 +53,7 @@ class ProspectiveStudentController extends Controller
             'documents.documentType',
             'contacts.type',
             'village.subDistrict.city.province'
-        ])
-            ->orderBy('created_at', 'desc');
+        ])->orderBy('created_at', 'desc');
 
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
@@ -65,10 +63,12 @@ class ProspectiveStudentController extends Controller
             });
         }
 
+        if ($status && $status !== 'Semua') {
+            $query->where('status', $status);
+        }
+
         return $query->paginate($perPage);
     }
-
-
     public function show($id)
     {
         $student = ProspectiveStudent::with([
