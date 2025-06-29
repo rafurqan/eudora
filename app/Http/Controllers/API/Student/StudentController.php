@@ -57,7 +57,8 @@ class StudentController extends Controller
             'parents.educationLevel',
             'parents.incomeRange',
             'documents.documentType',
-            'village.subDistrict.city.province'
+            'village.subDistrict.city.province',
+            'invoices.items'
         ])
             ->orderBy('created_at', 'desc');
 
@@ -277,7 +278,8 @@ class StudentController extends Controller
             'parents.incomeRange',
             'classMemberships.studentClass.teacher',
             'documents.documentType',
-            'village.subDistrict.city.province'
+            'village.subDistrict.city.province',
+            'invoices.items'
         ])
             ->findOrFail($id);
 
