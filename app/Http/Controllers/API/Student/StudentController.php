@@ -91,18 +91,19 @@ class StudentController extends Controller
 
         $totalApproved = $students->where('status', 'active')->count();
 
-        $totalYatim = $students->filter(function ($student) {
+        $activeStudents = $students->where('status', 'active');
+
+        $totalYatim = $activeStudents->filter(function ($student) {
             return $student->specialCondition && stripos($student->specialCondition->name, 'yatim') !== false;
         })->count();
 
-        $totalAnakGuru = $students->filter(function ($student) {
+        $totalAnakGuru = $activeStudents->filter(function ($student) {
             return $student->specialCondition && stripos($student->specialCondition->name, 'anak guru') !== false;
         })->count();
 
-        $totalSpecialNeed = $students->filter(function ($student) {
+        $totalSpecialNeed = $activeStudents->filter(function ($student) {
             return $student->specialNeed !== null;
         })->count();
-
         return [
             'total' => $total,
             'approved' => $totalApproved,

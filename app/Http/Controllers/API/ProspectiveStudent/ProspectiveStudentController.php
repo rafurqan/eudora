@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateProspectiveStudentRequest;
 use App\Http\Requests\UpdateProspectiveStudentRequest;
 use App\Models\ClassMembership;
+use App\Models\Invoice;
 use App\Models\ProspectiveStudent;
 use App\Models\Student;
 use App\Models\StudentDocument;
@@ -226,7 +227,7 @@ class ProspectiveStudentController extends Controller
                 'full_name' => $prospective->full_name,
                 'nickname' => $prospective->nickname,
                 'religion_id' => $prospective->religion_id,
-                'status' => 'approved',
+                'status' => 'active',
                 'has_kip' => $prospective->has_kip,
                 'has_kps' => $prospective->has_kps,
                 'eligible_for_kip' => $prospective->eligible_for_kip,
@@ -319,6 +320,24 @@ class ProspectiveStudentController extends Controller
             $memberships = ClassMembership::where('prospective_student_id', $prospective->id)->get();
 
             foreach ($memberships as $membership) {
+                ClassMembership::create([
+                    'id' => Str::uuid(),
+                    'student_class_id' => $membership->student_class_id, // ini penting
+                    'student_id' => $student->id,
+                    'reason' => $membership->reason,
+                    'start_at' => $membership->start_at,
+                    'end_at' => $membership->end_at,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+
+            // Hapus class_membership lama
+            Invoice::where('entity_id', $prospective->id)->delete();
+
+            // Copy class memberships
+            $invoices = ClassMembership::where('prospective_student_id', $prospective->id)->get();
+
+            foreach ($invoices as $invoice) {
                 ClassMembership::create([
                     'id' => Str::uuid(),
                     'student_class_id' => $membership->student_class_id, // ini penting
