@@ -113,14 +113,20 @@ class Student extends Model
 
     public function getDocumentStatusAttribute()
     {
-        // Gunakan documents_count jika tersedia (hasil dari withCount)
-        if (array_key_exists('documents_count', $this->attributes)) {
-            return $this->documents_count >= 1 ? 'Lengkap' : 'Belum Lengkap';
+        $requiredDocumentTypeIds = DocumentType::where('is_required', true)->pluck('id');
+
+        if ($requiredDocumentTypeIds->isEmpty()) {
+            return 'Lengkap';
         }
 
-        // Jika belum tersedia, fallback ke count manual (hanya untuk jaga-jaga)
-        return $this->documents()->count() >= 1 ? 'Lengkap' : 'Belum Lengkap';
+        $studentRequiredCount = $this->documents()
+            ->whereIn('document_type_id', $requiredDocumentTypeIds)
+            ->count();
+
+        return $studentRequiredCount >= $requiredDocumentTypeIds->count() ? 'Lengkap' : 'Belum Lengkap';
     }
+
+
     public function getPhotoUrlAttribute(): ?string
     {
         if (!$this->photo_filename)
