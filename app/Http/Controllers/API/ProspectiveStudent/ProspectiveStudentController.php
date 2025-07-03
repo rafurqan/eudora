@@ -322,25 +322,7 @@ class ProspectiveStudentController extends Controller
             foreach ($memberships as $membership) {
                 ClassMembership::create([
                     'id' => Str::uuid(),
-                    'student_class_id' => $membership->student_class_id, // ini penting
-                    'student_id' => $student->id,
-                    'reason' => $membership->reason,
-                    'start_at' => $membership->start_at,
-                    'end_at' => $membership->end_at,
-                    'created_by' => auth()->id(),
-                ]);
-            }
-
-            // Hapus class_membership lama
-            Invoice::where('entity_id', $prospective->id)->delete();
-
-            // Copy class memberships
-            $invoices = ClassMembership::where('prospective_student_id', $prospective->id)->get();
-
-            foreach ($invoices as $invoice) {
-                ClassMembership::create([
-                    'id' => Str::uuid(),
-                    'student_class_id' => $membership->student_class_id, // ini penting
+                    'student_class_id' => $membership->student_class_id,
                     'student_id' => $student->id,
                     'reason' => $membership->reason,
                     'start_at' => $membership->start_at,
@@ -351,6 +333,33 @@ class ProspectiveStudentController extends Controller
 
             // Hapus class_membership lama
             ClassMembership::where('prospective_student_id', $prospective->id)->delete();
+
+            // Copy invoice lama
+            $invoices = Invoice::where('entity_id', $prospective->id)->get();
+
+            foreach ($invoices as $invoice) {
+                Invoice::create([
+                    'id' => Str::uuid(),
+                    'entity_id' => $student->id,
+                    'entity_type' => Student::class,
+                    'student_class' => $invoice->student_class,
+                    'code' => $invoice->code,
+                    'publication_date' => $invoice->publication_date,
+                    'due_date' => $invoice->due_date,
+                    'notes' => $invoice->notes,
+                    'status' => $invoice->status,
+                    'total' => $invoice->total,
+                    'delivered_wa' => $invoice->delivered_wa,
+                    'invoice_type' => $invoice->invoice_type,
+                    'created_at' => $invoice->created_at,
+                    'created_by_id' => $invoice->created_by_id,
+                    'updated_at' => $invoice->updated_at,
+                    'updated_by_id' => $invoice->updated_by_id,
+                ]);
+            }
+
+            // Hapus invoice lama
+            Invoice::where('entity_id', $prospective->id)->delete();
 
             // Update status calon siswa
             $prospective->update(['status' => 'approved']);
