@@ -43,7 +43,8 @@ use App\Http\Controllers\API\Student\{
 };
 use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
-use App\HTTP\Controllers\API\finance\InvoiceController;
+use App\HTTP\Controllers\API\finance\{InvoiceController, PaymentController};
+use App\Models\Payment;
 use PHPUnit\Architecture\Services\ServiceContainer;
 
 Route::prefix('v1')->group(function () {
@@ -120,6 +121,10 @@ Route::prefix('v1')->group(function () {
         Route::get('finance/invoices/generate-invoice-code', [InvoiceController::class, 'generateInvoiceCode']);
         Route::apiResource('finance/invoices', InvoiceController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 
+        //Payment Routes
+        Route::get('finance/payments/statistics', [PaymentController::class, 'statistics']);
+        Route::get('finance/payments/generate-payment-code', [PaymentController::class, 'generatePaymentCode']);
+        Route::apiResource('finance/payments', PaymentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 
         Route::apiResource('teachers', TeacherController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 

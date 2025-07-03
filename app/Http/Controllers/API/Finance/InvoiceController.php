@@ -22,9 +22,9 @@ class InvoiceController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
-        $perPage = $request->input('per_page', 0); // 0 berarti tanpa pagination
+        $perPage = $request->input('per_page', 0);
 
-        $query = Invoice::with('entity', 'studentClass')->orderBy('created_at', 'desc');
+        $query = Invoice::with('entity', 'studentClass', 'payment')->orderBy('created_at', 'desc');
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -204,7 +204,7 @@ class InvoiceController extends Controller
                 'due_date' => $request->due_date,
                 'invoice_type' => $request->invoice_type,
                 'notes' => $request->notes,
-                'status' => 'draft',
+                'status' => 'unpaid',
                 'total' => collect($request->selected_items)->sum(fn($item) => $item['price'] * $item['frequency']),
                 'created_by_id' => $request->user()->id,
             ]);

@@ -27,7 +27,7 @@ class CreateGrantRequest extends FormRequest
             'donation_type' => 'nullable|string',
             'is_active' => 'nullable|string|size:1',
             'description' => 'nullable|string',
-            'total_funds' => 'nullable|numeric|min:0|max:999999999999.99',
+            'total_funds' => 'required|integer|min:0',
             'grant_expiration_date' => 'nullable|date',
             'acceptance_date' => 'nullable|date',
             'notes' => 'nullable|string',
