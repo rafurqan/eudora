@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://xtudents.test', 'http://invoker.test', 'http://localhost:5173'],
+    'allowed_origins' => ['http://xtudents.test', 'http://invoker.test', 'http://localhost:5173', 'http://zeus.railway.internal:8080', 'https://zeus-production-0313.up.railway.app', 'http://0.0.0.4173'],
 
     'allowed_origins_patterns' => [],
 

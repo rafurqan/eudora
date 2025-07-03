@@ -37,8 +37,8 @@ class UpdateProspectiveStudentRequest extends FormRequest
             'has_kip' => 'nullable|boolean',
             'has_kps' => 'nullable|boolean',
             'eligible_for_kip' => 'nullable|boolean',
-            'phone'=> 'nullable|string',
-            'email'=> 'nullable|string',
+            'phone' => 'nullable|string',
+            'email' => 'nullable|string',
 
 
             // Student Origin School
@@ -64,6 +64,7 @@ class UpdateProspectiveStudentRequest extends FormRequest
             'parents.*.nik' => 'nullable|string|max:20',
             'parents.*.birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'parents.*.education_level.id' => 'nullable|uuid|exists:education_levels,id',
+            'parents.*.address' => 'nullable|string',
             'parents.*.occupation' => 'nullable|string',
             'parents.*.income_range.id' => 'nullable|uuid|exists:income_ranges,id',
             'parents.*.phone' => 'nullable|string|max:20',

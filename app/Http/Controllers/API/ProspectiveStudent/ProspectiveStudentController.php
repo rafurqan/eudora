@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateProspectiveStudentRequest;
 use App\Http\Requests\UpdateProspectiveStudentRequest;
 use App\Models\ClassMembership;
+use App\Models\Invoice;
 use App\Models\ProspectiveStudent;
 use App\Models\Student;
 use App\Models\StudentDocument;
@@ -21,14 +22,13 @@ use Illuminate\Support\Str;
 
 class ProspectiveStudentController extends Controller
 {
-
     public function index(Request $request)
     {
-
         $keyword = $request->input('keyword');
+        $status = $request->input('status');
         $perPage = $request->input('per_page', 10);
 
-        $paginated = $this->getProspectiveStudent($keyword, $perPage);
+        $paginated = $this->getProspectiveStudent($keyword, $status, $perPage);
 
         return ResponseFormatter::success(
             $paginated->items(),
@@ -39,7 +39,7 @@ class ProspectiveStudentController extends Controller
         );
     }
 
-    private function getProspectiveStudent($keyword, $perPage)
+    private function getProspectiveStudent($keyword, $status, $perPage)
     {
         $query = ProspectiveStudent::with([
             'nationality',
@@ -54,8 +54,7 @@ class ProspectiveStudentController extends Controller
             'documents.documentType',
             'contacts.type',
             'village.subDistrict.city.province'
-        ])
-            ->orderBy('created_at', 'desc');
+        ])->orderBy('created_at', 'desc');
 
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
@@ -65,10 +64,12 @@ class ProspectiveStudentController extends Controller
             });
         }
 
+        if ($status && $status !== 'Semua') {
+            $query->where('status', $status);
+        }
+
         return $query->paginate($perPage);
     }
-
-
     public function show($id)
     {
         $student = ProspectiveStudent::with([
@@ -157,7 +158,9 @@ class ProspectiveStudentController extends Controller
                     'aggregate_type' => ProspectiveStudent::class,
                     'parent_type' => $parentData['parent_type'],
                     'nik' => $parentData['nik'],
+                    'email' => $parentData['email'] ?? null,
                     'full_name' => $parentData['full_name'],
+                    'address' => $parentData['address'] ?? null,
                     'birth_year' => $parentData['birth_year'] ?? null,
                     'education_level_id' => $parentData['education_level']['id'] ?? null,
                     'occupation' => $parentData['occupation'],
@@ -224,7 +227,7 @@ class ProspectiveStudentController extends Controller
                 'full_name' => $prospective->full_name,
                 'nickname' => $prospective->nickname,
                 'religion_id' => $prospective->religion_id,
-                'status' => 'approved',
+                'status' => 'active',
                 'has_kip' => $prospective->has_kip,
                 'has_kps' => $prospective->has_kps,
                 'eligible_for_kip' => $prospective->eligible_for_kip,
@@ -279,8 +282,10 @@ class ProspectiveStudentController extends Controller
                     'aggregate_type' => Student::class,
                     'parent_type' => $parent->parent_type,
                     'nik' => $parent->nik,
+                    'address' => $parent->address,
                     'full_name' => $parent->full_name,
                     'birth_year' => $parent->birth_year,
+                    'email' => $parent->email,
                     'education_level_id' => $parent->education_level_id,
                     'occupation' => $parent->occupation,
                     'income_range_id' => $parent->income_range_id,
@@ -317,7 +322,7 @@ class ProspectiveStudentController extends Controller
             foreach ($memberships as $membership) {
                 ClassMembership::create([
                     'id' => Str::uuid(),
-                    'student_class_id' => $membership->student_class_id, // ini penting
+                    'student_class_id' => $membership->student_class_id,
                     'student_id' => $student->id,
                     'reason' => $membership->reason,
                     'start_at' => $membership->start_at,
@@ -328,6 +333,33 @@ class ProspectiveStudentController extends Controller
 
             // Hapus class_membership lama
             ClassMembership::where('prospective_student_id', $prospective->id)->delete();
+
+            // Copy invoice lama
+            $invoices = Invoice::where('entity_id', $prospective->id)->get();
+
+            foreach ($invoices as $invoice) {
+                Invoice::create([
+                    'id' => Str::uuid(),
+                    'entity_id' => $student->id,
+                    'entity_type' => Student::class,
+                    'student_class' => $invoice->student_class,
+                    'code' => $invoice->code,
+                    'publication_date' => $invoice->publication_date,
+                    'due_date' => $invoice->due_date,
+                    'notes' => $invoice->notes,
+                    'status' => $invoice->status,
+                    'total' => $invoice->total,
+                    'delivered_wa' => $invoice->delivered_wa,
+                    'invoice_type' => $invoice->invoice_type,
+                    'created_at' => $invoice->created_at,
+                    'created_by_id' => $invoice->created_by_id,
+                    'updated_at' => $invoice->updated_at,
+                    'updated_by_id' => $invoice->updated_by_id,
+                ]);
+            }
+
+            // Hapus invoice lama
+            Invoice::where('entity_id', $prospective->id)->delete();
 
             // Update status calon siswa
             $prospective->update(['status' => 'approved']);
@@ -435,8 +467,10 @@ class ProspectiveStudentController extends Controller
                         'birth_year' => $parentData['birth_year'] ?? null,
                         'education_level_id' => $parentData['education_level']['id'] ?? null,
                         'occupation' => $parentData['occupation'],
+                        'email' => $parentData['email'] ?? null,
                         'income_range_id' => $parentData['income_range']['id'] ?? null,
                         'phone' => $parentData['phone'],
+                        'address' => $parentData['address'] ?? null,
                         'is_main_contact' => $parentData['is_main_contact'],
                         'is_emergency_contact' => $parentData['is_emergency_contact'],
                         'created_by_id' => $userId,
