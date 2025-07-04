@@ -92,6 +92,9 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('donors', DonorsController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('donation-types', DonationsTypesController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('grants', GrantsController::class)->only(['index', 'store', 'update', 'destroy']);
+            // Endpoint untuk reset dana hibah 
+            Route::post('grants/{id}/reset', [GrantsController::class, 'reset'])->name('grants.reset');
+
 
             Route::middleware(CheckPermission::class . ':List Permission')->get('permissions', [PermissionController::class, 'all']);
             Route::middleware(CheckPermission::class . ':Add Permission')->post('permissions', [PermissionController::class, 'create']);
