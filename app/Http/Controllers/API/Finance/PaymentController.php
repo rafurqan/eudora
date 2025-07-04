@@ -8,6 +8,7 @@ use App\Http\Requests\CreatePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Grant;
 use App\Models\InvoiceItem;
 use Carbon\Carbon;
 use GuzzleHttp\Psr7\Response;
@@ -24,43 +25,45 @@ class PaymentController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
-        $perPage = $request->input('per_page',0);
+        $perPage = $request->input('per_page', 0);
 
         $query = Invoice::with(['entity', 'payment', 'studentClass'])
-            ->leftJoin('payment', 'invoice.id', '=', 'payment.invoice_id')
-            ->select('invoice.*')
-            ->orderBy('invoice.created_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
+        // Filter berdasarkan keyword pencarian
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $upperSearch = strtoupper($search);
 
-                $q->whereRaw('UPPER(invoice.code) LIKE ?', ["%{$upperSearch}%"])
-                ->orWhereRaw('UPPER(payment.code) LIKE ?', ["%{$upperSearch}%"])
-                ->orWhereRaw('UPPER(payment.payment_method) LIKE ?', ["%{$upperSearch}%"]);
-            });
-
-            $query->orWhereHasMorph('entity', [\App\Models\Student::class, \App\Models\ProspectiveStudent::class], function ($q) use ($search) {
-            $q->where('full_name', 'like', "%$search%");
-            });
-
-            $query->orWhereHas('studentClass', function ($q2) use ($search) {
-                $q2->where('name', 'like', "%$search%");
+                $q->whereRaw('UPPER(code) LIKE ?', ["%{$upperSearch}%"]) // invoice.code
+                ->orWhereHas('payment', function ($sub) use ($upperSearch) {
+                    $sub->whereRaw('UPPER(code) LIKE ?', ["%{$upperSearch}%"])
+                        ->orWhereRaw('UPPER(payment_method) LIKE ?', ["%{$upperSearch}%"]);
+                })
+                ->orWhereHasMorph('entity', [\App\Models\Student::class, \App\Models\ProspectiveStudent::class], function ($q2) use ($search) {
+                    $q2->where('full_name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('studentClass', function ($q3) use ($search) {
+                    $q3->where('name', 'like', "%{$search}%");
+                });
             });
         }
 
+        // Filter berdasarkan status pembayaran
         if ($status === 'unpaid') {
             $query->where(function ($q) {
-                $q->where(function ($subQuery) {
-                    $subQuery->where('payment.status', '!=', 'paid')
-                             ->orWhereNull('payment.status');
-                })
-                ->orWhereNull('payment.status');
+                $q->whereDoesntHave('payment')
+                ->orWhereHas('payment', function ($subQuery) {
+                    $subQuery->where('status', '!=', 'paid');
+                });
             });
         } elseif ($status && $status !== 'Semua Status') {
-            $query->where('payment.status', $status);
+            $query->whereHas('payment', function ($q) use ($status) {
+                $q->where('status', $status);
+            });
         }
 
+        // Pagination / get all
         $result = $perPage > 0 ? $query->paginate($perPage) : $query->get();
 
         if ($result->isEmpty()) {
@@ -69,6 +72,7 @@ class PaymentController extends Controller
 
         return ResponseFormatter::success($result, 'Data Payment Ditemukan');
     }
+
 
 
     public function statistics()
@@ -151,6 +155,23 @@ class PaymentController extends Controller
                 'reserved_at' => now(),
             ]);
 
+            // validasi dana hibah
+            if (!empty($data['id_grant']) || !empty($data['grant_id'])) {
+                $grantId = $data['id_grant'] ?? $data['grant_id'];
+                $grant = Grant::find($grantId);
+
+                if (!$grant) {
+                    return ResponseFormatter::error(null, 'Hibah tidak ditemukan', 404);
+                }
+
+                $requestedGrantAmount = (int) ($data['grant_amount'] ?? 0);
+                $availableFunds = (int) ($grant->total_funds - $grant->total_used_funds);
+
+                if ($requestedGrantAmount > $availableFunds) {
+                    return ResponseFormatter::error(null, "Dana hibah tidak mencukupi. Sisa dana tersedia: Rp " . number_format($availableFunds), 422);
+                }
+            }
+
             $payment = $invoice->payments()->create([
                 'code'              => $newCode,
                 'payment_method'    => $data['payment_method'],
@@ -169,6 +190,40 @@ class PaymentController extends Controller
 
             $invoice->status = $status;
             $invoice->save();
+
+            // start log dana hibah
+            $grant = Grant::find($payment->id_grant);
+
+            if (!empty($payment->id_grant)) {
+                DB::table('log_grant')->insert([
+                    'id'             => (string) Str::uuid(),
+                    'grant_id'       => $grant->id,
+                    'payment_id'     => $payment->id,
+                    'amount_used'    => $data['grant_amount'],
+                    'period'         => now()->format('Y-m'),
+                    'reset_version'  => $grant->current_reset_version,
+                    'created_by_id'  => $request->user()->id ?? null,
+                    'used_at'        => now(),
+                ]);
+            }
+
+            // update total used funds
+            // $grantAmount = is_numeric($payment->grant_amount) ? (int) $payment->grant_amount : 0;
+            // if ($payment->id_grant && $grantAmount > 0) {
+            //     $grant = Grant::find($payment->id_grant);
+            //     if ($grant) {
+            //         $grant->increment('total_used_funds', $grantAmount);
+            //     }
+            // }
+
+            $grantAmount = (int) ($data['grant_amount'] ?? 0);
+            if (!empty($payment->id_grant) && $grantAmount > 0) {
+                $grant = Grant::find($payment->id_grant);
+                if ($grant) {
+                    $grant->increment('total_used_funds', $grantAmount);
+                }
+            }
+
 
             DB::commit();
             return ResponseFormatter::success($payment, 'Pembayaran berhasil disimpan');
@@ -223,14 +278,43 @@ class PaymentController extends Controller
         try {
             $payment = Payment::findOrFail($id);
 
-            $payment->status = null;
+            DB::table('history_payment')->insert([
+                'id' => (string) Str::uuid(),
+                'payment_id'           => $payment->id,
+                'invoice_id'           => $payment->invoice_id,
+                'code'                 => $payment->code,
+                'payment_method'       => $payment->payment_method,
+                'nominal_payment'      => $payment->nominal_payment,
+                'payment_date'         => $payment->payment_date,
+                'notes'                => $payment->notes,
+                'bank_name'            => $payment->bank_name,
+                'account_number'       => $payment->account_number,
+                'account_name'         => $payment->account_name,
+                'reference_number'     => $payment->reference_number,
+                'id_grant'             => $payment->id_grant,
+                'grant_amount'         => $payment->grant_amount,
+                'status'               => $payment->status,
+
+                'deleted_by_id'        => $request->user()->id ?? null,
+                'deleted_reason'       => $request->input('reason') ?? null,
+                'deleted_at'           => now(),
+
+                'original_created_by_id' => $payment->created_by_id,
+                'original_created_at'    => $payment->created_at,
+                'original_updated_by_id' => $payment->updated_by_id,
+                'original_updated_at'    => $payment->updated_at,
+            ]);
+
+            // Lanjut soft delete
+            $payment->status = 'unpaid';
             $payment->save();
             $payment->delete();
 
-            return ResponseFormatter::success(null, 'Data berhasil dihapus (soft delete)');
+            return ResponseFormatter::success(null, 'Data berhasil dihapus dan dicatat ke riwayat');
         } catch (\Throwable $e) {
             return ResponseFormatter::error(null, 'Gagal menghapus data: ' . $e->getMessage(), 500);
         }
     }
+
 
 }

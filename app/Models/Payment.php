@@ -36,6 +36,7 @@ class Payment extends Model
         'status',
         'id_log_grant',
         'id_grant',
+        'grant_amount',
         'created_by_id',
         'updated_by_id',
     ];

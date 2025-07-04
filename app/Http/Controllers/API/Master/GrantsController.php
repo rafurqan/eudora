@@ -87,6 +87,32 @@ class GrantsController extends Controller
         }
     }
 
+    public function reset(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $grant = Grant::findOrFail($id);
+
+            // Naikkan versi reset
+            $grant->current_reset_version = $grant->current_reset_version + 1;
+
+            // Reset total_used_funds
+            $grant->total_used_funds = 0;
+
+            $grant->save();
+
+            DB::commit();
+
+            return ResponseFormatter::success($grant, 'Dana hibah berhasil direset.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ResponseFormatter::error(null, 'Gagal reset dana hibah: ' . $e->getMessage(), 500);
+        }
+    }
+
+
+
     public function destroy (Request $request, $id) {
         try {
             DB::beginTransaction();

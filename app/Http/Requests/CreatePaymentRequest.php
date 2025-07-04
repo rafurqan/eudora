@@ -34,7 +34,9 @@ class CreatePaymentRequest extends FormRequest
             'notes' => 'nullable|string',
 
             'id_log_grant' => 'nullable|uuid',
+            'grant_id' => 'nullable|uuid',
             'id_grant' => 'nullable|uuid',
+            'grant_amount' => 'nullable|integer|min:0',
             'created_by_id' => 'nullable|uuid',
             'updated_by_id' => 'nullable|uuid',
         ];
@@ -57,6 +59,19 @@ class CreatePaymentRequest extends FormRequest
                 'nominal_payment' => $this->total_payment,
             ]);
         }
+
+        if ($this->has('grant_id')) {
+            $this->merge([
+                'id_grant' => $this->grant_id,
+            ]);
+        }
+
+        if ($this->has('grant_amount')) {
+            $this->merge([
+                'grant_amount' => $this->grant_amount,
+            ]);
+        }
+
     }
 
 }
