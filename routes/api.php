@@ -43,8 +43,7 @@ use App\Http\Controllers\API\Student\{
 };
 use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
-use App\HTTP\Controllers\API\Finance\InvoiceController;
-use App\HTTP\Controllers\API\Finance\PaymentController;
+use App\Http\Controllers\API\Finance\{InvoiceController, PaymentController};
 use App\Models\Payment;
 use PHPUnit\Architecture\Services\ServiceContainer;
 
