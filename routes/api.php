@@ -43,7 +43,7 @@ use App\Http\Controllers\API\Student\{
 };
 use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
-use App\HTTP\Controllers\API\finance\{InvoiceController, PaymentController};
+use App\HTTP\Controllers\API\Finance\{InvoiceController, PaymentController};
 use App\Models\Payment;
 use PHPUnit\Architecture\Services\ServiceContainer;
 
@@ -92,7 +92,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('donors', DonorsController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('donation-types', DonationsTypesController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('grants', GrantsController::class)->only(['index', 'store', 'update', 'destroy']);
-            // Endpoint untuk reset dana hibah 
+            // Endpoint untuk reset dana hibah
             Route::post('grants/{id}/reset', [GrantsController::class, 'reset'])->name('grants.reset');
 
 
