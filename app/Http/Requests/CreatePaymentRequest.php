@@ -31,12 +31,14 @@ class CreatePaymentRequest extends FormRequest
             'account_number' => 'nullable|string|max:50',
             'reference_number' => 'nullable|string|max:100',
             'nominal_payment' => 'nullable|integer|min:0',
+            'total_payment' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
 
             'id_log_grant' => 'nullable|uuid',
             'grant_id' => 'nullable|uuid',
             'id_grant' => 'nullable|uuid',
             'grant_amount' => 'nullable|integer|min:0',
+            'use_grant' => 'nullable|boolean',
             'created_by_id' => 'nullable|uuid',
             'updated_by_id' => 'nullable|uuid',
         ];
@@ -51,12 +53,6 @@ class CreatePaymentRequest extends FormRequest
                 'account_name' => $this->bank_details['account_holder'] ?? null,
                 'account_number' => $this->bank_details['account_number'] ?? null,
                 'reference_number' => $this->bank_details['reference_number'] ?? null,
-            ]);
-        }
-
-        if ($this->has('total_payment')) {
-            $this->merge([
-                'nominal_payment' => $this->total_payment,
             ]);
         }
 
