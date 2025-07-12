@@ -9,10 +9,7 @@ use App\Http\Requests\UpdateInvoiceRequest;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use App\Models\InvoiceCodeReservation;
 
@@ -119,9 +116,9 @@ class InvoiceController extends Controller
     {
         return DB::transaction(function () {
             $today = now();
-            $prefixMonth = $today->format('Y-m'); 
-            $date = $today->format('Y-m-d');      
-            $prefix = "INV-{$prefixMonth}";       
+            $prefixMonth = $today->format('Y-m');
+            $date = $today->format('Y-m-d');
+            $prefix = "INV-{$prefixMonth}";
 
             // Ambil kode terakhir di bulan ini
             $lastCode = DB::table('invoice_code_reservations')
@@ -170,9 +167,9 @@ class InvoiceController extends Controller
 
             // === GENERATE CODE DI SINI SECARA TRANSAKSI ===
             $today = now();
-            $prefixMonth = $today->format('Y-m'); 
-            $date = $today->format('Y-m-d');      
-            $prefix = "INV-{$prefixMonth}";       
+            $prefixMonth = $today->format('Y-m');
+            $date = $today->format('Y-m-d');
+            $prefix = "INV-{$prefixMonth}";
 
             // Ambil kode terakhir di bulan ini
             $lastCode = DB::table('invoice_code_reservations')
@@ -192,7 +189,7 @@ class InvoiceController extends Controller
                 'code' => $newCode,
                 'reserved_at' => now(),
             ]);
-            
+
             // create invoice
             $invoice = $entity->invoices()->create([
                 'code' => $newCode,
@@ -299,7 +296,7 @@ class InvoiceController extends Controller
 
             DB::commit();
             return ResponseFormatter::success(null, 'Berhasil menghapus Invoice');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             return ResponseFormatter::error(null, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
