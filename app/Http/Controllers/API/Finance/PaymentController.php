@@ -89,7 +89,7 @@ class PaymentController extends Controller
         $statusData = [];
         foreach ($statuses as $status) {
             $count = Payment::where('status', $status)->count();
-            $amount = Payment::where('status', $status)->sum('nominal_payment');
+            $amount = Payment::where('status', $status)->sum('total_payment');
 
             $statusData[] = [
                 'status' => $status,
@@ -129,7 +129,7 @@ class PaymentController extends Controller
 
             $invoice = Invoice::findOrFail($data['invoice_id']);
 
-            $status = ((int) $data['nominal_payment'] === (int) $invoice->total) ? 'paid' : 'partial';
+            $status = ((int) $data['total_payment'] === (int) $invoice->total) ? 'paid' : 'partial';
 
             //generate code payment
             $today = now();
@@ -184,7 +184,9 @@ class PaymentController extends Controller
                 'reference_number'  => $data['reference_number'] ?? ($data['bank_details']['reference_number'] ?? null),
                 'id_grant'          => $data['id_grant'] ?? $data['grant_id'] ?? null,
                 'grant_amount'      => $data['grant_amount'] ?? 0,
+                'use_grant'         => !empty($data['id_grant']) || !empty($data['grant_id']) ? 1 : 0,
                 'status'            => $status,
+                'total_payment'     => $data['total_payment'] ?? 0,
                 'created_by_id'     => $request->user()->id ?? null,
             ]);
 
@@ -206,15 +208,6 @@ class PaymentController extends Controller
                     'used_at'        => now(),
                 ]);
             }
-
-            // update total used funds
-            // $grantAmount = is_numeric($payment->grant_amount) ? (int) $payment->grant_amount : 0;
-            // if ($payment->id_grant && $grantAmount > 0) {
-            //     $grant = Grant::find($payment->id_grant);
-            //     if ($grant) {
-            //         $grant->increment('total_used_funds', $grantAmount);
-            //     }
-            // }
 
             $grantAmount = (int) ($data['grant_amount'] ?? 0);
             if (!empty($payment->id_grant) && $grantAmount > 0) {
@@ -246,7 +239,7 @@ class PaymentController extends Controller
             $invoice = Invoice::findOrFail($data['invoice_id']);
 
             // Tentukan status baru berdasarkan nominal vs total invoice
-            $status = ((int) $data['nominal_payment'] === (int) $invoice->total) ? 'paid' : 'partial';
+            $status = ((int) $data['total_payment'] === (int) $invoice->total) ? 'paid' : 'partial';
 
             $payment->update([
                 'payment_method'    => $data['payment_method'],
@@ -259,7 +252,9 @@ class PaymentController extends Controller
                 'reference_number'  => $data['reference_number'] ?? null,
                 'id_grant'          => $data['id_grant'] ?? null,
                 'grant_amount'      => $data['grant_amount'] ?? 0,
+                'use_grant'         => !empty($data['id_grant']) ? 1 : 0,
                 'status'            => $status,
+                'total_payment'     => $data['total_payment'] ?? 0,
                 'updated_by_id'     => $request->user()->id ?? null,
             ]);
 
@@ -294,6 +289,8 @@ class PaymentController extends Controller
                 'id_grant'             => $payment->id_grant,
                 'grant_amount'         => $payment->grant_amount,
                 'status'               => $payment->status,
+                'total_payment'        => $payment->total_payment,
+
 
                 'deleted_by_id'        => $request->user()->id ?? null,
                 'deleted_reason'       => $request->input('reason') ?? null,
