@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateProspectiveStudentRequest;
 use App\Models\ClassMembership;
 use App\Models\Invoice;
 use App\Models\ProspectiveStudent;
+use App\Models\RegistrationCodeReservation;
 use App\Models\Student;
 use App\Models\StudentDocument;
 use App\Models\StudentOriginSchool;
@@ -95,6 +96,7 @@ class ProspectiveStudentController extends Controller
         $data = $request->validated();
         $userId = $request->user()->id;
         $prospectiveStudentId = Str::uuid()->toString();
+        $registrationCode = $this->generateRegistrationCode($userId);
 
         DB::beginTransaction();
         try {
@@ -105,7 +107,7 @@ class ProspectiveStudentController extends Controller
 
             ProspectiveStudent::create([
                 'id' => $prospectiveStudentId,
-                'registration_code' => $data['registration_code'],
+                'registration_code' => $registrationCode->registration_code,
                 'full_name' => $data['full_name'],
                 'nickname' => $data['nickname'] ?? null,
                 'religion_id' => $data['religion']['id'] ?? null,
@@ -558,5 +560,33 @@ class ProspectiveStudentController extends Controller
                 500
             );
         }
+    }
+
+    private function generateRegistrationCode(string $userId): RegistrationCodeReservation
+    {
+        $now = now();
+        $prefix = 'REG-' . $now->format('Y-m') . '-';
+
+        return DB::transaction(function () use ($prefix, $userId) {
+            $last = RegistrationCodeReservation::where('registration_code', 'like', "$prefix%")
+                ->orderByDesc('registration_code')
+                ->lockForUpdate()
+                ->first();
+
+            $lastNumber = 0;
+            if ($last) {
+                $lastNumber = (int) substr($last->registration_code, -4);
+            }
+
+            $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            $newCode = $prefix . $nextNumber;
+
+            return RegistrationCodeReservation::create([
+                'registration_code' => $newCode,
+                'reserved_at' => now(),
+                'used' => false,
+                'created_by_id' => $userId,
+            ]);
+        });
     }
 }

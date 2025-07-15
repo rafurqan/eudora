@@ -14,7 +14,6 @@ class CreateProspectiveStudentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'registration_code' => 'required|string|unique:students,registration_code|max:50',
             'full_name' => 'required|string|max:100',
             'nickname' => 'nullable|string|max:50',
             'religion.id' => 'nullable|uuid|exists:religions,id',
@@ -75,7 +74,6 @@ class CreateProspectiveStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'registration_code.required' => 'Kode registrasi wajib diisi.',
             'full_name.required' => 'Nama lengkap wajib diisi.',
             'gender.in' => 'Jenis kelamin harus salah satu dari male atau female.',
 
