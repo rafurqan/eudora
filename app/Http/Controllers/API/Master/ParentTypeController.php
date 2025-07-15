@@ -5,23 +5,23 @@ namespace App\Http\Controllers\API\Master;
 use App\Helpers\MasterCache;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateIncomeRangeRequest;
-use App\Http\Requests\UpdateIncomeRangeRequest;
-use App\Models\IncomeRange;
+use App\Http\Requests\CreateParentTypeRequest;
+use App\Http\Requests\UpdateParentTypeRequest;
+use App\Models\ParentType;
 use Illuminate\Http\Request;
 
-class IncomeRangeController extends Controller
+class ParentTypeController extends Controller
 {
 
     public function index()
     {
-        $incomeRange = MasterCache::getOrFetch('income_ranges', 3600, function () {
-            return IncomeRange::orderBy('created_at', 'desc')->get();
+        $ParentType = MasterCache::getOrFetch('parent_types', 3600, function () {
+            return ParentType::orderBy('created_at', 'desc')->get();
         });
-        return ResponseFormatter::success($incomeRange, 'List Income Range');
+        return ResponseFormatter::success($ParentType, 'List Parent Type');
     }
 
-    public function store(CreateIncomeRangeRequest $request)
+    public function store(CreateParentTypeRequest $request)
     {
         $data = $request->validated();
         $id = uuid_create();
@@ -29,37 +29,37 @@ class IncomeRangeController extends Controller
         $data['created_by_id'] = $request->user()->id;
 
         if (empty($data['code'])) {
-            $lastCode = IncomeRange::select('code')
+            $lastCode = ParentType::select('code')
                 ->whereNotNull('code')
                 ->orderByRaw("LPAD(code, 10, '0') DESC")
                 ->limit(1)
                 ->value('code');
 
             $nextNumber = $lastCode ? intval($lastCode) + 1 : 1;
+
             $data['code'] = str_pad((string) $nextNumber, 2, '0', STR_PAD_LEFT);
         }
 
-        IncomeRange::create($data);
-        MasterCache::clear('income_ranges');
+        ParentType::create($data);
+        MasterCache::clear('parent_types');
 
         return ResponseFormatter::success([
             'id' => $id,
             'code' => $data['code']
-        ], 'Success create Income Range');
+        ], 'Success create Parent Type');
     }
-
 
 
     public function destroy(Request $request, $id)
     {
-        $incomeRange = IncomeRange::find($id);
+        $ParentType = ParentType::find($id);
 
-        if ($incomeRange) {
-            $incomeRange->delete();
-            MasterCache::clear('income_ranges');
+        if ($ParentType) {
+            $ParentType->delete();
+            MasterCache::clear('parent_types');
             return ResponseFormatter::success(
                 data: null,
-                message: 'Success Remove Income Range'
+                message: 'Success Remove Parent Type'
             );
         } else {
             return ResponseFormatter::error(
@@ -71,21 +71,21 @@ class IncomeRangeController extends Controller
     }
 
 
-    public function update(UpdateIncomeRangeRequest $request, $id)
+    public function update(UpdateParentTypeRequest $request, $id)
     {
         $data = $request->validated();
-        $incomeRange = IncomeRange::find($id);
+        $ParentType = ParentType::find($id);
 
-        if (!$incomeRange) {
+        if (!$ParentType) {
             return ResponseFormatter::error(null, 'Data not found', 404);
         }
         $data["updated_by_id"] = $request->user()->id;
 
-        $incomeRange->update($data);
-        MasterCache::clear('income_ranges');
+        $ParentType->update($data);
+        MasterCache::clear('parent_types');
         return ResponseFormatter::success([
-            'id' => $incomeRange->id
-        ], 'Success update Income Range');
+            'id' => $ParentType->id
+        ], 'Success update Parent Type');
     }
 
 }

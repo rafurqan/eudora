@@ -27,12 +27,27 @@ class DocumentTypeController extends Controller
         $id = uuid_create();
         $data['id'] = $id;
         $data['created_by_id'] = $request->user()->id;
+
+        if (empty($data['code'])) {
+            $lastCode = DocumentType::select('code')
+                ->whereNotNull('code')
+                ->orderByRaw("LPAD(code, 10, '0') DESC")
+                ->limit(1)
+                ->value('code');
+
+            $nextNumber = $lastCode ? intval($lastCode) + 1 : 1;
+            $data['code'] = str_pad((string) $nextNumber, 2, '0', STR_PAD_LEFT);
+        }
+
         DocumentType::create($data);
         MasterCache::clear('document_types');
+
         return ResponseFormatter::success([
-            'id' => $id
+            'id' => $id,
+            'code' => $data['code']
         ], 'Success create Document Type');
     }
+
 
 
     public function destroy(Request $request, $id)
