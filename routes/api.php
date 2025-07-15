@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Master\CityController;
 use App\Http\Controllers\API\Master\ContactTypeController;
 use App\Http\Controllers\API\Master\IncomeRangeController;
+use App\Http\Controllers\API\Master\ParentTypeController;
 use App\Http\Controllers\API\Master\ProgramController;
 use App\Http\Controllers\API\Master\ProvinceController;
 use App\Http\Controllers\API\Master\ReligionController;
