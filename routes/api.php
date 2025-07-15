@@ -83,7 +83,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('sub-districts', SubDistrictController::class)->only(['index']);
             Route::apiResource('cities', CityController::class)->only(['index']);
             Route::apiResource('provinces', ProvinceController::class)->only(['index']);
-            Route::apiResource('income-ranges', ParentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('parent-types', ParentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
 
             // Master Biaya
             Route::apiResource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
