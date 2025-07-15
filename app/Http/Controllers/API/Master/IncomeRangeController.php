@@ -16,7 +16,7 @@ class IncomeRangeController extends Controller
     public function index()
     {
         $incomeRange = MasterCache::getOrFetch('income_ranges', 3600, function () {
-            return IncomeRange::orderBy('created_at', 'desc')->get();
+            return IncomeRange::orderBy('code', 'asc')->get();
         });
         return ResponseFormatter::success($incomeRange, 'List Income Range');
     }

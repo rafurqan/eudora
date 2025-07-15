@@ -16,7 +16,7 @@ class DocumentTypeController extends Controller
     public function index()
     {
         $documentType = MasterCache::getOrFetch('document_types', 3600, function () {
-            return DocumentType::orderBy('created_at', 'desc')->get();
+            return DocumentType::orderBy('code', 'asc')->get();
         });
         return ResponseFormatter::success($documentType, 'List Document Type');
     }

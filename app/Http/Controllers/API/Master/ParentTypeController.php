@@ -16,7 +16,7 @@ class ParentTypeController extends Controller
     public function index()
     {
         $ParentType = MasterCache::getOrFetch('parent_types', 3600, function () {
-            return ParentType::orderBy('created_at', 'desc')->get();
+            return ParentType::orderBy('code', 'asc')->get();
         });
         return ResponseFormatter::success($ParentType, 'List Parent Type');
     }
