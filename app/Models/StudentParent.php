@@ -26,7 +26,7 @@ class StudentParent extends Model
 
     protected $fillable = [
         'id',
-        'parent_type',
+        'parent_type_id',
         'full_name',
         'nik',
         'aggregate_id',
@@ -54,6 +54,11 @@ class StudentParent extends Model
     public function incomeRange(): BelongsTo
     {
         return $this->belongsTo(IncomeRange::class, 'income_range_id');
+    }
+
+    public function parentType(): BelongsTo
+    {
+        return $this->belongsTo(ParentType::class, 'parent_type_id');
     }
 
 }

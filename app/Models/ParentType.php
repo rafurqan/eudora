@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 
-class DocumentType extends Model
+class ParentType extends Model
 {
     use HasFactory, Notifiable, HasUuids;
 
-    protected $table = 'document_types';
+    protected $table = 'parent_types';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -27,7 +27,6 @@ class DocumentType extends Model
         'id',
         'name',
         'code',
-        'is_required',
         'created_at',
         'created_by_id',
         'updated_at',
