@@ -17,7 +17,7 @@ class ProspectiveStudent extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $appends = ['document_status', 'photo_url'];
+    protected $appends = ['document_status', 'photo_url', 'student_id'];
 
     protected $hidden = [
         'nationality_id',
@@ -151,5 +151,14 @@ class ProspectiveStudent extends Model
     public function invoices()
     {
         return $this->morphMany(Invoice::class, 'entity');
+    }
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'prospective_student_id');
+    }
+
+    public function getStudentIdAttribute()
+    {
+        return $this->student?->id;
     }
 }
