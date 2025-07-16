@@ -45,7 +45,7 @@ class ProspectiveStudentController extends Controller
         $query = ProspectiveStudent::with([
             'nationality',
             'specialNeed',
-            'student:id',
+            'student:id,prospective_student_id',
             'religion',
             'specialCondition',
             'transportationMode',
@@ -78,6 +78,7 @@ class ProspectiveStudentController extends Controller
             'nationality',
             'specialNeed',
             'religion',
+            'student:id,prospective_student_id',
             'specialCondition',
             'transportationMode',
             'originSchools',
