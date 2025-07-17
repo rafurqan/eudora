@@ -56,6 +56,7 @@ class StudentController extends Controller
             'originSchools.educationLevel',
             'parents.educationLevel',
             'parents.incomeRange',
+            'parents.parentType',
             'documents.documentType',
             'village.subDistrict.city.province',
             'invoices.items'
@@ -277,6 +278,7 @@ class StudentController extends Controller
             'originSchools.educationLevel',
             'parents.educationLevel',
             'parents.incomeRange',
+            'parents.parentType',
             'classMemberships.studentClass.teacher',
             'documents.documentType',
             'village.subDistrict.city.province',

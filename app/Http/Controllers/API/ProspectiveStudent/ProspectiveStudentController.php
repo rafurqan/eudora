@@ -53,7 +53,7 @@ class ProspectiveStudentController extends Controller
             'originSchools.educationLevel',
             'parents.educationLevel',
             'parents.incomeRange',
-            'parents.parent_type',
+            'parents.parentType',
             'documents.documentType',
             'contacts.type',
             'village.subDistrict.city.province'
@@ -85,7 +85,7 @@ class ProspectiveStudentController extends Controller
             'originSchools',
             'parents.educationLevel',
             'parents.incomeRange',
-            'parents.parent_type',
+            'parents.parentType',
             'documents.documentType',
             'contacts.type',
             'village'
