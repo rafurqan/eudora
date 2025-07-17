@@ -217,23 +217,32 @@ class RateController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $rate = Rate::find($id);
             if (!$rate) {
                 return ResponseFormatter::error(null, 'Data tidak ditemukan', 404);
             }
 
-            $rate->delete(); // soft delete
+            $isUsed = DB::table('invoice_item')
+                ->where('rate_id', $rate->id)
+                ->whereNull('deleted_at')
+                ->exists();
 
-            $rate->service?->delete(); // soft delete relasi service jika ada
+            if ($isUsed) {
+                return ResponseFormatter::error(null, 'Tarif sedang digunakan di invoice dan tidak dapat dihapus', 422);
+            }
+
+            $rate->delete();
+            $rate->service?->delete();
 
             DB::commit();
             return ResponseFormatter::success(null, 'Berhasil menghapus Tarif');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             return ResponseFormatter::error(null, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
         }
     }
+
 
 }
