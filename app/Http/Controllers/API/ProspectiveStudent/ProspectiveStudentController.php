@@ -53,6 +53,7 @@ class ProspectiveStudentController extends Controller
             'originSchools.educationLevel',
             'parents.educationLevel',
             'parents.incomeRange',
+            'parents.parent_type',
             'documents.documentType',
             'contacts.type',
             'village.subDistrict.city.province'
@@ -84,6 +85,7 @@ class ProspectiveStudentController extends Controller
             'originSchools',
             'parents.educationLevel',
             'parents.incomeRange',
+            'parents.parent_type',
             'documents.documentType',
             'contacts.type',
             'village'
@@ -160,7 +162,7 @@ class ProspectiveStudentController extends Controller
                     'id' => Str::uuid(),
                     'aggregate_id' => $prospectiveStudentId,
                     'aggregate_type' => ProspectiveStudent::class,
-                    'parent_type' => $parentData['parent_type'],
+                    'parent_type_id' => $parentData['parent_type']['id'] ?? null,
                     'nik' => $parentData['nik'],
                     'email' => $parentData['email'] ?? null,
                     'full_name' => $parentData['full_name'],
@@ -284,7 +286,7 @@ class ProspectiveStudentController extends Controller
                     'id' => Str::uuid(),
                     'aggregate_id' => $studentId,
                     'aggregate_type' => Student::class,
-                    'parent_type' => $parent->parent_type,
+                    'parent_type_id' => $parent->parent_type_id,
                     'nik' => $parent->nik,
                     'address' => $parent->address,
                     'full_name' => $parent->full_name,
@@ -465,7 +467,7 @@ class ProspectiveStudentController extends Controller
                 $parentModel = StudentParent::updateOrCreate(
                     ['id' => $parentId, 'aggregate_id' => $id, 'aggregate_type' => ProspectiveStudent::class], // Kunci untuk mencari/membuat
                     [
-                        'parent_type' => $parentData['parent_type'],
+                        'parent_type_id' => $parentData['parent_type']['id'] ?? null,
                         'nik' => $parentData['nik'],
                         'full_name' => $parentData['full_name'],
                         'birth_year' => $parentData['birth_year'] ?? null,

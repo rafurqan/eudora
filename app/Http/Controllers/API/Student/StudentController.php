@@ -366,7 +366,7 @@ class StudentController extends Controller
                     'id' => Str::uuid(),
                     'aggregate_id' => $id,
                     'aggregate_type' => Student::class,
-                    'parent_type' => $doc['parent_type'],
+                    'parent_type_id' => $doc['parent_type']['id'] ?? null,
                     'nik' => $doc['nik'],
                     'full_name' => $doc['full_name'],
                     'birth_year' => $doc['birth_year'] ?? null,
@@ -492,7 +492,7 @@ class StudentController extends Controller
                 $parentModel = StudentParent::updateOrCreate(
                     ['id' => $parentId, 'aggregate_id' => $id, 'aggregate_type' => Student::class], // Kunci untuk mencari/membuat
                     [
-                        'parent_type' => $parentData['parent_type'],
+                        'parent_type_id' => $parentData['parent_type']['id'] ?? null,
                         'nik' => $parentData['nik'],
                         'full_name' => $parentData['full_name'],
                         'birth_year' => $parentData['birth_year'] ?? null,
