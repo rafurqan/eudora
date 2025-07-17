@@ -26,6 +26,7 @@ class IncomeRange extends Model
     protected $fillable = [
         'id',
         'name',
+        'code',
         'created_at',
         'created_by_id',
         'updated_at',
