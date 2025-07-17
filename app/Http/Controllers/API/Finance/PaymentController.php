@@ -273,6 +273,8 @@ class PaymentController extends Controller
         try {
             $payment = Payment::findOrFail($id);
 
+            $invoice = Invoice::findOrFail($payment['invoice_id']);
+
             DB::table('history_payment')->insert([
                 'id' => (string) Str::uuid(),
                 'payment_id'           => $payment->id,
@@ -306,6 +308,9 @@ class PaymentController extends Controller
             $payment->status = 'unpaid';
             $payment->save();
             $payment->delete();
+
+            $invoice->status = 'unpaid';
+            $invoice->save();
 
             return ResponseFormatter::success(null, 'Data berhasil dihapus dan dicatat ke riwayat');
         } catch (\Throwable $e) {

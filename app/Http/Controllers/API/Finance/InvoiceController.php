@@ -35,8 +35,13 @@ class InvoiceController extends Controller
         }
 
         if ($status && $status !== 'Semua Status') {
-            $query->where('status', $status);
+            if ($status === 'unpaid') {
+                $query->whereIn('status', ['unpaid', 'partial']);
+            } else {
+                $query->where('status', $status);
+            }
         }
+
 
         if ($perPage > 0) {
             $invoice = $query->paginate($perPage);
