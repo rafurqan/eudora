@@ -55,7 +55,7 @@ class CreateProspectiveStudentRequest extends FormRequest
 
             // Student Parents
             'parents' => 'nullable|array',
-            'parents.*.parent_type' => 'required|in:father,mother,guardian,other',
+            'parents.*.parent_type.id' => 'nullable|uuid|exists:parent_types,id',
             'parents.*.full_name' => 'required|string|max:100',
             'parents.*.nik' => 'nullable|string|max:20',
             'parents.*.address' => 'nullable|string',
@@ -79,7 +79,7 @@ class CreateProspectiveStudentRequest extends FormRequest
 
             'addresses.*.street.required' => 'alamat wajib diisi.',
             'parents.*.full_name.required' => 'Nama orang tua wajib diisi.',
-            'parents.*.parent_type.in' => 'Tipe orang tua tidak valid.',
+            'parent.*.parent_type_id.required' => 'Hubungan Keluarga wajib diisi.',
             'documents.*.document_type_id.required' => 'Jenis dokumen wajib diisi.',
             'documents.*.file.required' => 'File dokumen wajib diisi.',
 
