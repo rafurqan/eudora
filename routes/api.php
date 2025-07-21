@@ -45,8 +45,7 @@ use App\Http\Controllers\API\Student\{
 use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Controllers\API\Finance\{InvoiceController, PaymentController};
-use App\Models\Payment;
-use PHPUnit\Architecture\Services\ServiceContainer;
+use App\Http\Controllers\API\LogoController;
 
 Route::prefix('v1')->group(function () {
 
@@ -59,6 +58,7 @@ Route::prefix('v1')->group(function () {
 
     // LOG
     Route::get('logs', [LogController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/logo', [LogoController::class, 'show']);
 
     // PROTECTED ROUTES
     Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
