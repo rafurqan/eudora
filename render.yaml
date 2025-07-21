@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: eudora
+    env: php
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+    startCommand: |
+      php artisan migrate --force && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=8080
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        value: sqlite

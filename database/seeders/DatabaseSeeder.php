@@ -6,6 +6,7 @@ use App\Models\DocumentType;
 use App\Models\EducationLevel;
 use App\Models\IncomeRange;
 use App\Models\Nationality;
+use App\Models\ParentType;
 use App\Models\Program;
 use App\Models\Religion;
 use App\Models\Role;
@@ -191,23 +192,21 @@ class DatabaseSeeder extends Seeder
             'updated_at' => null
         ]);
 
-        $parentType = uuid_create();
+        $parentId = uuid_create();
         ParentType::create([
-            'id' => $parentType,
-            'name' => 'Ayah',
-            'code' => '01',
+            'id' => $parentId,
+            'name' => 'father',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
-
         $studentParent = uuid_create();
         StudentParent::create([
             'id' => $studentParent,
             'aggregate_id' => $studentId,
             'aggregate_type' => Student::class,
-            'parent_type_id' => $parentType,
             'full_name' => 'Budi Anzar',
+            'parent_type_id' => $parentId,
             'nik' => '1234567890123456',
             'birth_year' => 1980,
             'occupation' => 'Guru',
