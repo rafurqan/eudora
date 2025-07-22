@@ -25,7 +25,8 @@ class InvoiceController extends Controller
 
         if ($search) {
             $query->where(function($q) use ($search) {
-                $q->where('code', 'like', "%$search%")
+                $upperSearch = strtoupper($search);
+                $q->whereRaw('UPPER(code) LIKE ?', ["%{$upperSearch}%"])
                 ->orWhere('notes', 'like', "%$search%");
             });
 

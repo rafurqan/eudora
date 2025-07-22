@@ -30,12 +30,11 @@ class PaymentController extends Controller
         $query = Invoice::with(['entity', 'payment', 'studentClass'])
             ->orderBy('created_at', 'desc');
 
-        // Filter berdasarkan keyword pencarian
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $upperSearch = strtoupper($search);
 
-                $q->whereRaw('UPPER(code) LIKE ?', ["%{$upperSearch}%"]) // invoice.code
+                $q->whereRaw('UPPER(code) LIKE ?', ["%{$upperSearch}%"])
                 ->orWhereHas('payment', function ($sub) use ($upperSearch) {
                     $sub->whereRaw('UPPER(code) LIKE ?', ["%{$upperSearch}%"])
                         ->orWhereRaw('UPPER(payment_method) LIKE ?', ["%{$upperSearch}%"]);
@@ -49,7 +48,6 @@ class PaymentController extends Controller
             });
         }
 
-        // Filter berdasarkan status pembayaran
         if ($status === 'unpaid') {
             $query->where(function ($q) {
                 $q->whereDoesntHave('payment')
@@ -63,7 +61,6 @@ class PaymentController extends Controller
             });
         }
 
-        // Pagination / get all
         $result = $perPage > 0 ? $query->paginate($perPage) : $query->get();
 
         if ($result->isEmpty()) {
@@ -82,10 +79,8 @@ class PaymentController extends Controller
         $totalCount = $query->count();
         $totalAmount = $query->sum('nominal_payment');
 
-        // Status berdasarkan enum atau nilai tetap
         $statuses = ['paid', 'unpaid', 'pending', 'late'];
 
-        // Looping semua status untuk dapatkan count & amount
         $statusData = [];
         foreach ($statuses as $status) {
             $count = Payment::where('status', $status)->count();
@@ -131,7 +126,6 @@ class PaymentController extends Controller
 
             $status = ((int) $data['total_payment'] === (int) $invoice->total) ? 'paid' : 'partial';
 
-            //generate code payment
             $today = now();
             $prefixMonth = $today->format('Y-m'); 
             $date = $today->format('Y-m-d');      
@@ -155,7 +149,6 @@ class PaymentController extends Controller
                 'reserved_at' => now(),
             ]);
 
-            // validasi dana hibah
             if (!empty($data['id_grant']) || !empty($data['grant_id'])) {
                 $grantId = $data['id_grant'] ?? $data['grant_id'];
                 $grant = Grant::find($grantId);
@@ -193,7 +186,6 @@ class PaymentController extends Controller
             $invoice->status = $status;
             $invoice->save();
 
-            // start log dana hibah
             $grant = Grant::find($payment->id_grant);
 
             if (!empty($payment->id_grant)) {
@@ -238,7 +230,6 @@ class PaymentController extends Controller
             $payment = Payment::findOrFail($id);
             $invoice = Invoice::findOrFail($data['invoice_id']);
 
-            // Tentukan status baru berdasarkan nominal vs total invoice
             $status = ((int) $data['total_payment'] === (int) $invoice->total) ? 'paid' : 'partial';
 
             $payment->update([
@@ -272,7 +263,6 @@ class PaymentController extends Controller
     {
         try {
             $payment = Payment::findOrFail($id);
-
             $invoice = Invoice::findOrFail($payment['invoice_id']);
 
             DB::table('history_payment')->insert([
@@ -292,19 +282,22 @@ class PaymentController extends Controller
                 'grant_amount'         => $payment->grant_amount,
                 'status'               => $payment->status,
                 'total_payment'        => $payment->total_payment,
-
-
                 'deleted_by_id'        => $request->user()->id ?? null,
                 'deleted_reason'       => $request->input('reason') ?? null,
                 'deleted_at'           => now(),
-
                 'original_created_by_id' => $payment->created_by_id,
                 'original_created_at'    => $payment->created_at,
                 'original_updated_by_id' => $payment->updated_by_id,
                 'original_updated_at'    => $payment->updated_at,
             ]);
 
-            // Lanjut soft delete
+            if (!empty($payment->id_grant) && $payment->grant_amount > 0) {
+                $grant = Grant::find($payment->id_grant);
+                if ($grant) {
+                    $grant->decrement('total_used_funds', $payment->grant_amount);
+                }
+            }
+
             $payment->status = 'unpaid';
             $payment->save();
             $payment->delete();
@@ -317,6 +310,5 @@ class PaymentController extends Controller
             return ResponseFormatter::error(null, 'Gagal menghapus data: ' . $e->getMessage(), 500);
         }
     }
-
 
 }
