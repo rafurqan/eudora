@@ -14,22 +14,14 @@ use App\Models\SchoolType;
 use App\Models\Service;
 use App\Models\SpecialCondition;
 use App\Models\SpecialNeed;
-use App\Models\Student;
-use App\Models\StudentOriginSchool;
-use App\Models\StudentParent;
-use App\Models\Teacher;
 use App\Models\TransportationMode;
 use App\Models\User;
 use App\Models\Rate;
 use App\Models\ProgramSchool;
-use App\Models\RatePackage;
 use App\Models\Donor;
 use App\Models\DonationType;
 use App\Models\Grant;
-use App\Models\ParentType;
-use Illuminate\Support\Facades\Hash;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-// use Hash;
+use Hash;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -56,43 +48,160 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'password' => Hash::make('123')
         ]);
-        $religionId = uuid_create();
+        User::factory()->create([
+            'id' => uuid_create(),
+            'name' => 'Test User 2',
+            'role_id' => $roleId,
+            'email' => 'test2@example.com',
+            'password' => Hash::make('123')
+        ]);
         Religion::create([
-            'id' => $religionId,
+            'id' => uuid_create(),
             'name' => 'Islam',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
-        $nationalityId = uuid_create();
+        Religion::create([
+            'id' => uuid_create(),
+            'name' => 'Hindu',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        Religion::create([
+            'id' => uuid_create(),
+            'name' => 'Kristen',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        Religion::create([
+            'id' => uuid_create(),
+            'name' => 'Khatolik',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        Religion::create([
+            'id' => uuid_create(),
+            'name' => 'Budha',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
         Nationality::create([
-            'id' => $nationalityId,
+            'id' => uuid_create(),
             'name' => 'WNI',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
-        $specialConditionId = uuid_create();
+        Nationality::create([
+            'id' => uuid_create(),
+            'name' => 'WNA',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
         SpecialCondition::create([
-            'id' => $specialConditionId,
+            'id' => uuid_create(),
             'name' => 'Anak Guru',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
-        $specialNeedId = uuid_create();
+
         SpecialNeed::create([
-            'id' => $specialNeedId,
+            'id' => uuid_create(),
             'name' => 'Ya',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
+        SpecialNeed::create([
+            'id' => uuid_create(),
+            'name' => 'Tidak',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
 
-        $modaTransportationId = uuid_create();
         TransportationMode::create([
-            'id' => $modaTransportationId,
+            'id' => uuid_create(),
             'name' => 'Motor',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Jalan Kaki',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Kendaraan Pribadi',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Kendaraan Umum / Angkot / Bus / Perahu Umum',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Jemputan Sekolah',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Kereta Api',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Ojek',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Andong / dokar / delman / becak',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Perahu / Sampan',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        TransportationMode::create([
+            'id' => uuid_create(),
+            'name' => 'Transportasi Lainnya',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
@@ -119,10 +228,10 @@ class DatabaseSeeder extends Seeder
             'updated_at' => null
         ]);
 
-        $educationLevelId = uuid_create();
         EducationLevel::create([
-            'id' => $educationLevelId,
-            'name' => 'SD',
+            'id' => uuid_create(),
+            'code'=>'01',
+            'name' => 'Tidak Sekolah',
             'level' => 'Dasar',
             'status' => 'ACTIVE',
             'description' => 'Sekolah Dasar',
@@ -131,66 +240,242 @@ class DatabaseSeeder extends Seeder
             'updated_at' => null
         ]);
 
-        $documentTypeId = uuid_create();
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'02',
+            'name' => 'SD Sederajat',
+            'level' => 'Dasar',
+            'status' => 'ACTIVE',
+            'description' => 'Sekolah Dasar',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'03',
+            'name' => 'SMP Sederajat',
+            'level' => 'Menengah',
+            'status' => 'ACTIVE',
+            'description' => 'Sekolah Dasar',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'04',
+            'name' => 'SMA Sederajat',
+            'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => 'Sekolah Dasar',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'05',
+            'name' => 'D1',
+            'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'06',
+            'name' => 'D2',
+            'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'07',
+            'name' => 'D3',
+            'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'08',
+            'name' => 'D4 / S1',
+            'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'09',
+            'name' => 'S2',
+            'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        EducationLevel::create([
+            'id' => uuid_create(),
+            'code'=>'10',
+            'name' => 'S3',
+            'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+
+
         DocumentType::create([
-            'id' => $documentTypeId,
-            'name' => 'KTP',
+            'id' => uuid_create(),
+            'name' => 'Akta Kelahiran',
+            'is_required' => 'Y',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
 
-        $incomeRangeId = uuid_create();
+        DocumentType::create([
+            'id' => uuid_create(),
+            'name' => 'Kartu Keluarga',
+            'is_required' => 'Y',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        DocumentType::create([
+            'id' => uuid_create(),
+            'name' => 'Ijazah / Surat Keterangan Lulus',
+            'is_required' => 'Y',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        DocumentType::create([
+            'id' => uuid_create(),
+            'name' => 'Kartu Identitas Anak',
+            'is_required' => 'Y',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        DocumentType::create([
+            'id' => uuid_create(),
+            'name' => 'Kartu Indonesia Pintar (KIP) (jika ada)',
+            'is_required' => 'N',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        DocumentType::create([
+            'id' => uuid_create(),
+            'name' => 'Kartu Program Keluarga Harapan (PKH) / KKS (jika ada)',
+            'is_required' => 'N',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        DocumentType::create([
+            'id' => uuid_create(),
+            'name' => 'Surat Pindah / Mutasi Sekolah (jika siswa pindahan)',
+            'is_required' => 'N',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
         IncomeRange::create([
-            'id' => $incomeRangeId,
-            'name' => '1000000-5000000',
+            'id' => uuid_create(),
+            'code' => '01',
+            'name' => 'Kurang dari Rp 500.000,00',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
 
-        $studentId = uuid_create();
-        Student::create([
-            'id' => $studentId,
-            'registration_code' => 'REG-2025-04-0001',
-            'full_name' => 'kaizi Anzar',
-            'nickname' => 'Kaizi',
-            'religion_id' => $religionId,
-            'gender' => 'male',
-            'birth_place' => 'PADANG',
-            'birth_date' => now(),
-            'status' => 'active',
-            'nisn' => '',
-            'nationality_id' => $nationalityId,
-            'transportation_mode_id' => $modaTransportationId,
-            'child_order' => 1,
-            'family_status' => 'ANAK',
-            'special_need_id' => $specialNeedId,
-            'special_condition_id' => $specialConditionId,
-            'additional_information' => 'additional condition',
-            'health_condition' => 'sehat walafiat',
-            'hobby' => 'olahraga',
-            'special_need' => 'tidak ada',
-            'has_kip' => false,
-            'eligible_for_kip' => false,
-            'created_by_id' => $userId
-        ]);
-
-        $studentOriginSchoolId = uuid_create();
-        StudentOriginSchool::create([
-            'id' => $studentOriginSchoolId,
-            'aggregate_id' => $studentId,
-            'aggregate_type' => Student::class,
-            'school_name' => 'SMP Negeri 1',
-            'school_type_id' => $schoolTypeId,
-            'graduation_year' => '2020',
-            'npsn' => '0012345678',
-            'address_name' => 'Padang',
-            'education_level_id' => $educationLevelId,
+        IncomeRange::create([
+            'id' => uuid_create(),
+            'code' => '02',
+            'name' => 'Rp 500.000,00 - Rp 999.999,00',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null
         ]);
+
+        IncomeRange::create([
+            'id' => uuid_create(),
+            'code' => '03',
+            'name' => 'Rp 1.000.000,00 - Rp 1.999.999,00',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        IncomeRange::create([
+            'id' => uuid_create(),
+            'code' => '04',
+            'name' => 'Rp 2.000.000,00 - Rp 4.999.999,00',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        IncomeRange::create([
+            'id' => uuid_create(),
+            'code' => '05',
+            'name' => 'Rp 5.000.000,00 - Rp 20.000.000,00',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        IncomeRange::create([
+            'id' => uuid_create(),
+            'code' => '06',
+            'name' => 'Lebih dari Rp 20.000.000,00',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        IncomeRange::create([
+            'id' => uuid_create(),
+            'code' => '07',
+            'name' => 'Tidak berpenghasilan',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
 
         $parentId = uuid_create();
         ParentType::create([
@@ -200,40 +485,7 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => null
         ]);
-        $studentParent = uuid_create();
-        StudentParent::create([
-            'id' => $studentParent,
-            'aggregate_id' => $studentId,
-            'aggregate_type' => Student::class,
-            'full_name' => 'Budi Anzar',
-            'parent_type_id' => $parentId,
-            'nik' => '1234567890123456',
-            'birth_year' => 1980,
-            'occupation' => 'Guru',
-            'income_range_id' => $incomeRangeId,
-            'phone' => '081234567890',
-            'email' => 'test@email.com',
-            'is_main_contact' => true,
-            'is_emergency_contact' => false,
-            'education_level_id' => $educationLevelId,
-            'created_by_id' => $userId,
-            'created_at' => now(),
-            'updated_at' => null
-        ]);
-        $teacherId = uuid_create();
-        Teacher::create([
-            'id' => $teacherId,
-            'name' => 'Dila Anzar',
-            'nip' => '1234567890123456',
-            'birth_date' => now(),
-            'birth_place' => 'Padang',
-            'education_level_id' => $educationLevelId,
-            'graduated_from' => 'Universitas Andalas',
-            'created_by_id' => $userId,
-            'created_at' => now(),
-            'updated_at' => null
-        ]);
-        // Program
+
         $programId = uuid_create();
         ProgramSchool::create([
             'id' => $programId,
