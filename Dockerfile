@@ -22,6 +22,9 @@ WORKDIR /var/www/html
 # Copy Laravel source
 COPY . .
 
+# ✅ Tambahan penting yang tidak ada di versi kamu
+RUN composer install --no-dev --optimize-autoloader
+
 # Copy nginx and php-fpm config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.conf
