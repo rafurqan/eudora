@@ -1,44 +1,38 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl \
-    libpng-dev libonig-dev libxml2-dev \
-    libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql mbstring zip exif pcntl bcmath gd
+    build-essential \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    libpq-dev
 
-# Enable mod_rewrite
-RUN a2enmod rewrite
-
-# Set working directory
-WORKDIR /var/www/html
-
-# Copy all project files
-COPY . .
-
-# Copy production environment
-COPY .env.production .env
-
-# Set file permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 storage bootstrap/cache
-
-# Apache config
-COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Set working directory
+WORKDIR /var/www
 
-# Laravel optimize
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+COPY . .
 
-# Cloud Run port
-ENV PORT=8080
-EXPOSE 8080
+RUN composer install --no-dev --optimize-autoloader
 
-CMD ["apache2-foreground"]
+RUN php artisan config:clear
+
+# Set correct permissions
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+EXPOSE 8000
+
+CMD php artisan serve --host=0.0.0.0 --port=8000

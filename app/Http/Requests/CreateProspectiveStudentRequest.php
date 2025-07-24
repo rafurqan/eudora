@@ -20,6 +20,7 @@ class CreateProspectiveStudentRequest extends FormRequest
             'gender' => 'required|in:male,female',
             'birth_place' => 'required|string|max:100',
             'birth_date' => 'required|date',
+            'entry_year' => 'nullable|string|max:4',
             'nisn' => 'nullable|string|max:20',
             'nationality.id' => 'nullable|uuid|exists:nationalities,id',
             'village.id' => 'nullable|exists:villages,id',
@@ -74,6 +75,8 @@ class CreateProspectiveStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'entry_year.max' => 'Tahun masuk maksimal 4 karakter.',
+            'entry_year.string' => 'Tahun masuk harus berupa string.',
             'full_name.required' => 'Nama lengkap wajib diisi.',
             'gender.in' => 'Jenis kelamin harus salah satu dari male atau female.',
 
