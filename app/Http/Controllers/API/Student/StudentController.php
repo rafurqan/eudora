@@ -386,7 +386,7 @@ class StudentController extends Controller
                     'id' => Str::uuid(),
                     'aggregate_id' => $id,
                     'aggregate_type' => Student::class,
-                    'education_level_id' => $doc['education_level']['id'] ?? null,
+                    'education_id' => $doc['education']['id'] ?? null,
                     'school_type_id' => $doc['school_type']['id'] ?? null,
                     'school_name' => $doc['school_name'],
                     'npsn' => $doc['npsn'],
@@ -527,7 +527,7 @@ class StudentController extends Controller
                 $schoolModel = StudentOriginSchool::updateOrCreate(
                     ['id' => $schoolId, 'aggregate_id' => $id, 'aggregate_type' => Student::class],
                     [
-                        'education_level_id' => $schoolData['education_level']['id'] ?? null,
+                        'education_id' => $schoolData['education']['id'] ?? null,
                         'school_type_id' => $schoolData['school_type']['id'] ?? null,
                         'school_name' => $schoolData['school_name'],
                         'npsn' => $schoolData['npsn'],
