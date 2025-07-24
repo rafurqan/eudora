@@ -62,7 +62,7 @@ class CreateProspectiveStudentRequest extends FormRequest
             'parents.*.address' => 'nullable|string',
             'parents.*.birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'parents.*.education_level.id' => 'nullable|uuid|exists:education_levels,id',
-            'parents.*.occupation' => 'nullable|string',
+            'parents.*.occupation_id' => 'nullable|uuid|exists:occupations,id',
             'parents.*.income_range.id' => 'nullable|uuid|exists:income_ranges,id',
             'parents.*.phone' => 'nullable|string|max:20',
             'parents.*.is_main_contact' => 'nullable|boolean',

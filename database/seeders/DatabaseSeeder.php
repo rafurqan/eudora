@@ -6,6 +6,7 @@ use App\Models\DocumentType;
 use App\Models\EducationLevel;
 use App\Models\IncomeRange;
 use App\Models\Nationality;
+use App\Models\Occupation;
 use App\Models\ParentType;
 use App\Models\Program;
 use App\Models\Religion;
@@ -216,6 +217,14 @@ class DatabaseSeeder extends Seeder
             'updated_at' => null
         ]);
 
+        SchoolType::create([
+            'id' => uuid_create(),
+            'name' => 'Negeri',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
         $programId = uuid_create();
         Program::create([
             'id' => $programId,
@@ -230,7 +239,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'01',
+            'code' => '01',
             'name' => 'Tidak Sekolah',
             'level' => 'Dasar',
             'status' => 'ACTIVE',
@@ -242,7 +251,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'02',
+            'code' => '02',
             'name' => 'SD Sederajat',
             'level' => 'Dasar',
             'status' => 'ACTIVE',
@@ -254,7 +263,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'03',
+            'code' => '03',
             'name' => 'SMP Sederajat',
             'level' => 'Menengah',
             'status' => 'ACTIVE',
@@ -266,7 +275,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'04',
+            'code' => '04',
             'name' => 'SMA Sederajat',
             'level' => 'Atas',
             'status' => 'ACTIVE',
@@ -278,7 +287,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'05',
+            'code' => '05',
             'name' => 'D1',
             'level' => 'Atas',
             'status' => 'ACTIVE',
@@ -290,7 +299,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'06',
+            'code' => '06',
             'name' => 'D2',
             'level' => 'Atas',
             'status' => 'ACTIVE',
@@ -302,7 +311,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'07',
+            'code' => '07',
             'name' => 'D3',
             'level' => 'Atas',
             'status' => 'ACTIVE',
@@ -314,7 +323,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'08',
+            'code' => '08',
             'name' => 'D4 / S1',
             'level' => 'Atas',
             'status' => 'ACTIVE',
@@ -326,7 +335,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'09',
+            'code' => '09',
             'name' => 'S2',
             'level' => 'Atas',
             'status' => 'ACTIVE',
@@ -338,7 +347,7 @@ class DatabaseSeeder extends Seeder
 
         EducationLevel::create([
             'id' => uuid_create(),
-            'code'=>'10',
+            'code' => '10',
             'name' => 'S3',
             'level' => 'Atas',
             'status' => 'ACTIVE',
@@ -413,6 +422,36 @@ class DatabaseSeeder extends Seeder
             'updated_at' => null
         ]);
 
+
+        $data = [
+            ['01', 'Tidak Bekerja'],
+            ['02', 'Nelayan'],
+            ['03', 'Petani'],
+            ['04', 'Peternak'],
+            ['05', 'PNS/TNI/POLRI'],
+            ['06', 'Karyawan Swasta'],
+            ['07', 'Pedagang Kecil'],
+            ['08', 'Pedagang Besar'],
+            ['09', 'Wiraswasta'],
+            ['10', 'Wirausaha'],
+            ['11', 'Buruh'],
+            ['12', 'Pensiunan'],
+            ['13', 'Tenaga Kerja Indonesia (TKI)'],
+            ['14', 'Sudah Meninggal'],
+            ['99', 'Lainnya'],
+        ];
+
+        foreach ($data as [$code, $name]) {
+            Occupation::create([
+                'id' => uuid_create(),
+                'code' => $code,
+                'name' => $name,
+                'created_by_id' => $userId,
+                'created_at' => now(),
+                'updated_at' => null,
+            ]);
+        }
+
         IncomeRange::create([
             'id' => uuid_create(),
             'code' => '01',
@@ -477,10 +516,91 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        $parentId = uuid_create();
         ParentType::create([
-            'id' => $parentId,
-            'name' => 'father',
+            'id' => uuid_create(),
+            'code' => '01',
+            'name' => 'Ayah',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '02',
+            'name' => 'Ibu',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '03',
+            'name' => 'Wali',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '04',
+            'name' => 'Kakek',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '05',
+            'name' => 'Nenek',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '06',
+            'name' => 'Kakak',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '07',
+            'name' => 'Paman',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '08',
+            'name' => 'Bibi',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '09',
+            'name' => 'Sepupu',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        ParentType::create([
+            'id' => uuid_create(),
+            'code' => '10',
+            'name' => 'Lainnya',
             'created_by_id' => $userId,
             'created_at' => now(),
             'updated_at' => null

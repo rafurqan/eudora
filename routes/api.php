@@ -86,6 +86,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('cities', CityController::class)->only(['index']);
             Route::apiResource('provinces', ProvinceController::class)->only(['index']);
             Route::apiResource('parent-types', ParentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('occupations', ParentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
 
             // Master Biaya
             Route::apiResource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
