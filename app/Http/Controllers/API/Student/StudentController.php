@@ -308,6 +308,7 @@ class StudentController extends Controller
                 'id' => $id,
                 'registration_code' => $data['registration_code'],
                 'full_name' => $data['full_name'],
+                'entry_year' => $data['entry_year'],
                 'nickname' => $data['nickname'] ?? null,
                 'religion_id' => $data['religion']['id'] ?? null,
                 'status' => 'waiting',
@@ -459,6 +460,7 @@ class StudentController extends Controller
             $student->update([
                 'registration_code' => $data['registration_code'],
                 'full_name' => $data['full_name'],
+                'entry_year' => $data['entry_year'],
                 'nickname' => $data['nickname'] ?? null,
                 'religion_id' => $data['religion']['id'] ?? null,
                 'has_kip' => $data['has_kip'] ?? false,

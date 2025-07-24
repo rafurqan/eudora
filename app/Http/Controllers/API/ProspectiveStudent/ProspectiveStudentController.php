@@ -113,6 +113,7 @@ class ProspectiveStudentController extends Controller
                 'id' => $prospectiveStudentId,
                 'registration_code' => $registrationCode->registration_code,
                 'full_name' => $data['full_name'],
+                'entry_year' => $data['entry_year'],
                 'nickname' => $data['nickname'] ?? null,
                 'religion_id' => $data['religion']['id'] ?? null,
                 'status' => 'waiting',
@@ -230,6 +231,7 @@ class ProspectiveStudentController extends Controller
                 'id' => $studentId,
                 'prospective_student_id' => $prospective->id,
                 'registration_code' => $prospective->registration_code,
+                'entry_year' => $prospective->entry_year,
                 'full_name' => $prospective->full_name,
                 'nickname' => $prospective->nickname,
                 'religion_id' => $prospective->religion_id,
@@ -432,6 +434,7 @@ class ProspectiveStudentController extends Controller
             $student->update([
                 'registration_code' => $data['registration_code'],
                 'full_name' => $data['full_name'],
+                'entry_year' => $data['entry_year'],
                 'nickname' => $data['nickname'] ?? null,
                 'religion_id' => $data['religion']['id'] ?? null,
                 'has_kip' => $data['has_kip'] ?? false,

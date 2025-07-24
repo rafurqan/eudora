@@ -38,6 +38,7 @@ class ProspectiveStudent extends Model
         'birth_place',
         'nationality_id',
         'birth_date',
+        'entry_year',
         'nisn',
         'street',
         'email',

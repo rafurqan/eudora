@@ -33,6 +33,7 @@ class Student extends Model
         'full_name',
         'nickname',
         'religion_id',
+        'entry_year',
         'gender',
         'village_id',
         'birth_place',

@@ -19,6 +19,7 @@ class UpdateStudentRequest extends FormRequest
             'full_name' => 'required|string|max:100',
             'nickname' => 'nullable|string|max:50',
             'religion.id' => 'nullable|uuid|exists:religions,id',
+            'entry_year' => 'nullable|string|max:4',
             'gender' => 'required|in:male,female',
             'birth_place' => 'required|string|max:100',
             'birth_date' => 'required|date',
@@ -79,6 +80,8 @@ class UpdateStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'entry_year.max' => 'Tahun masuk maksimal 4 karakter.',
+            'entry_year.string' => 'Tahun masuk harus berupa string.',
             'registration_code.required' => 'Kode registrasi wajib diisi.',
             'full_name.required' => 'Nama lengkap wajib diisi.',
             'gender.in' => 'Jenis kelamin harus salah satu dari male atau female.',
