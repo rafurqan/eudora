@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Master\CityController;
 use App\Http\Controllers\API\Master\ContactTypeController;
 use App\Http\Controllers\API\Master\IncomeRangeController;
+use App\Http\Controllers\API\Master\OccupationController;
 use App\Http\Controllers\API\Master\ParentTypeController;
 use App\Http\Controllers\API\Master\ProgramController;
 use App\Http\Controllers\API\Master\ProvinceController;
@@ -86,7 +87,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('cities', CityController::class)->only(['index']);
             Route::apiResource('provinces', ProvinceController::class)->only(['index']);
             Route::apiResource('parent-types', ParentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
-            Route::apiResource('occupations', ParentTypeController::class)->only(['index', 'store', 'update', 'destroy']);
+            Route::apiResource('occupations', OccupationController::class)->only(['index', 'store', 'update', 'destroy']);
 
             // Master Biaya
             Route::apiResource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);
