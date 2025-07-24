@@ -45,7 +45,7 @@ class UpdateStudentRequest extends FormRequest
 
             // Student Origin School
             'origin_schools' => 'nullable|array',
-            'origin_schools.*.education_level.id' => 'required|uuid|exists:education_levels,id',
+            'origin_schools.*.education.id' => 'required|uuid|exists:educations,id',
             'origin_schools.*.school_type.id' => 'required|uuid|exists:school_types,id',
             'origin_schools.*.school_name' => 'required|string|max:100',
             'origin_schools.*.npsn' => 'required|string|max:100',

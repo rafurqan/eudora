@@ -185,7 +185,7 @@ class ProspectiveStudentController extends Controller
                     'id' => Str::uuid(),
                     'aggregate_id' => $prospectiveStudentId,
                     'aggregate_type' => ProspectiveStudent::class,
-                    'education_level_id' => $schoolData['education_level']['id'] ?? null,
+                    'education_id' => $schoolData['education']['id'] ?? null,
                     'school_type_id' => $schoolData['school_type']['id'] ?? null,
                     'school_name' => $schoolData['school_name'],
                     'npsn' => $schoolData['npsn'],
@@ -314,7 +314,7 @@ class ProspectiveStudentController extends Controller
                     'id' => Str::uuid(),
                     'aggregate_id' => $studentId,
                     'aggregate_type' => Student::class,
-                    'education_level_id' => $school->education_level_id,
+                    'education_id' => $school->education_id,
                     'school_type_id' => $school->school_type_id,
                     'school_name' => $school->school_name,
                     'npsn' => $school->npsn,
@@ -501,7 +501,7 @@ class ProspectiveStudentController extends Controller
                 $schoolModel = StudentOriginSchool::updateOrCreate(
                     ['id' => $schoolId, 'aggregate_id' => $id, 'aggregate_type' => ProspectiveStudent::class],
                     [
-                        'education_level_id' => $schoolData['education_level']['id'] ?? null,
+                        'education_id' => $schoolData['education']['id'] ?? null,
                         'school_type_id' => $schoolData['school_type']['id'] ?? null,
                         'school_name' => $schoolData['school_name'],
                         'npsn' => $schoolData['npsn'],
