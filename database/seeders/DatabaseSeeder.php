@@ -361,6 +361,7 @@ class DatabaseSeeder extends Seeder
 
         DocumentType::create([
             'id' => uuid_create(),
+            'code' => '01',
             'name' => 'Akta Kelahiran',
             'is_required' => 'Y',
             'created_by_id' => $userId,
@@ -370,6 +371,7 @@ class DatabaseSeeder extends Seeder
 
         DocumentType::create([
             'id' => uuid_create(),
+            'code' => '02',
             'name' => 'Kartu Keluarga',
             'is_required' => 'Y',
             'created_by_id' => $userId,
@@ -379,6 +381,7 @@ class DatabaseSeeder extends Seeder
 
         DocumentType::create([
             'id' => uuid_create(),
+            'code' => '03',
             'name' => 'Ijazah / Surat Keterangan Lulus',
             'is_required' => 'Y',
             'created_by_id' => $userId,
@@ -388,6 +391,7 @@ class DatabaseSeeder extends Seeder
 
         DocumentType::create([
             'id' => uuid_create(),
+            'code' => '04',
             'name' => 'Kartu Identitas Anak',
             'is_required' => 'Y',
             'created_by_id' => $userId,
@@ -397,6 +401,7 @@ class DatabaseSeeder extends Seeder
 
         DocumentType::create([
             'id' => uuid_create(),
+            'code' => '05',
             'name' => 'Kartu Indonesia Pintar (KIP) (jika ada)',
             'is_required' => 'N',
             'created_by_id' => $userId,
@@ -406,6 +411,7 @@ class DatabaseSeeder extends Seeder
 
         DocumentType::create([
             'id' => uuid_create(),
+            'code' => '06',
             'name' => 'Kartu Program Keluarga Harapan (PKH) / KKS (jika ada)',
             'is_required' => 'N',
             'created_by_id' => $userId,
@@ -415,6 +421,7 @@ class DatabaseSeeder extends Seeder
 
         DocumentType::create([
             'id' => uuid_create(),
+            'code' => '07',
             'name' => 'Surat Pindah / Mutasi Sekolah (jika siswa pindahan)',
             'is_required' => 'N',
             'created_by_id' => $userId,
