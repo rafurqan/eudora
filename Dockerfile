@@ -32,9 +32,6 @@ RUN composer install --no-dev --optimize-autoloader
 # Clear config cache
 RUN php artisan config:clear
 
-# Clear route cache
-RUN php artisan config:cache
-
 # Generate symbolic link for storage
 RUN php artisan storage:link
 
