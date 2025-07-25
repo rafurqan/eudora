@@ -35,11 +35,9 @@ RUN php artisan config:clear
 # Clear route cache
 RUN php artisan config:cache
 
-# Clear view cache
-RUN php artisan route:clear
 
 # Generate symbolic link for storage
-RUN php artisan storage:link || true
+RUN php artisan storage:link
 
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/public/storage
