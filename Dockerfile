@@ -32,11 +32,14 @@ RUN composer install --no-dev --optimize-autoloader
 # Clear config cache
 RUN php artisan config:clear
 
-# Generate symbolic link for storage
-RUN php artisan storage:link
+# Clear route cache
+RUN php artisan config:cache
+
+# Clear view cache
+RUN php artisan route:clear
 
 # Set correct permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/public/storage
 
 # Expose Laravel development server port
 EXPOSE 8000
