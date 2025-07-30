@@ -25,7 +25,7 @@ class DashboardController extends Controller
             ->sum('total');
 
         $totalPaymentMonth = Payment::whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->sum('amount');
+            ->sum('total_payment');
 
         $collectionRate = $totalInvoiceMonth > 0
             ? round(($totalPaymentMonth / $totalInvoiceMonth) * 100, 2)
