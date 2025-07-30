@@ -33,7 +33,7 @@ class DashboardController extends Controller
 
         $totalPendingPayment = Invoice::whereDoesntHave('payments')
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->sum('total');
+            ->sum('total_payment');
 
         return response()->json([
             'total_students_year' => $totalStudentsYear,
