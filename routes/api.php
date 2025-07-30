@@ -153,7 +153,7 @@ Route::prefix('v1')->group(function () {
         });
         // Route::post('/wa-blast', [WablasController::class, 'blast']);
         //Dashboard Summary
-        Route::get('dashboard', DashboardController::class)->only(['summary']) ;
+        Route::get('dashboard', [DashboardController::class, 'summary']);
 
     });
 });
