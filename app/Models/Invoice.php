@@ -59,5 +59,5 @@ class Invoice extends Model
     {
         return $this->hasMany(Payment::class, 'invoice_id');
     }
-
+    
 }
