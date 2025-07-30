@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\DocumentType;
+use App\Models\Education;
 use App\Models\EducationLevel;
 use App\Models\IncomeRange;
 use App\Models\Nationality;
@@ -54,6 +55,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User 2',
             'role_id' => $roleId,
             'email' => 'test2@example.com',
+            'password' => Hash::make('123')
+        ]);
+        User::factory()->create([
+            'id' => uuid_create(),
+            'name' => 'Staf Tata Usaha',
+            'role_id' => $roleId,
+            'email' => 'staf@email.com',
             'password' => Hash::make('123')
         ]);
         Religion::create([
@@ -350,6 +358,51 @@ class DatabaseSeeder extends Seeder
             'code' => '10',
             'name' => 'S3',
             'level' => 'Atas',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
+        Education::create([
+            'id' => uuid_create(),
+            'code' => '01',
+            'name' => 'PAUD',
+            'level' => 'Dasar',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        Education::create([
+            'id' => uuid_create(),
+            'code' => '02',
+            'name' => 'TK',
+            'level' => 'Dasar',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        Education::create([
+            'id' => uuid_create(),
+            'code' => '03',
+            'name' => 'MI/MIN',
+            'level' => 'Dasar',
+            'status' => 'ACTIVE',
+            'description' => ' ',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+        Education::create([
+            'id' => uuid_create(),
+            'code' => '04',
+            'name' => 'SD',
+            'level' => 'Dasar',
             'status' => 'ACTIVE',
             'description' => ' ',
             'created_by_id' => $userId,
