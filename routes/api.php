@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\Dashboard\DashboardController;
+use App\Http\Controllers\API\Dashboard\DashboardController;
 use App\Http\Controllers\API\Master\CityController;
 use App\Http\Controllers\API\Master\ContactTypeController;
 use App\Http\Controllers\API\Master\EducationController;
@@ -153,7 +153,7 @@ Route::prefix('v1')->group(function () {
         });
         // Route::post('/wa-blast', [WablasController::class, 'blast']);
         //Dashboard Summary
-        Route::get('dashboard', [DashboardController::class, 'summary']);
+        Route::get('dashboard', DashboardController::class)->only(['summary']) ;
 
     });
 });
