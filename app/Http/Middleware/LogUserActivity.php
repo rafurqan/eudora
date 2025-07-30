@@ -18,6 +18,10 @@ class LogUserActivity
     {
         $response = $next($request);
 
+        if ($request->is('api/v1/logs') || $request->is('api/v1/logs/*') || $request->is('logs')) {
+            return $response;
+        }
+
         Log::channel('activity')->info('User Request', [
             'user' => auth()->user()?->name ?? 'Guest',
             'user_id' => auth()->user()?->id ?? 'Guest',
