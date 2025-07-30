@@ -161,4 +161,12 @@ class ProspectiveStudent extends Model
     {
         return $this->student?->id;
     }
+
+    public function mainParent()
+    {
+        return $this->hasOne(StudentParent::class, 'aggregate_id')
+            ->where('aggregate_type', self::class)
+            ->where('is_main_contact', true);
+    }
+
 }

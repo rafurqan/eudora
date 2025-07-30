@@ -46,6 +46,8 @@ use App\Http\Controllers\API\Teacher\TeacherController;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Controllers\API\Finance\{InvoiceController, PaymentController};
 use App\Http\Controllers\API\LogoController;
+use App\Http\Controllers\API\FonnteController;
+use App\Http\Controllers\API\WablasController;
 
 Route::prefix('v1')->group(function () {
 
@@ -137,6 +139,14 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('prospective-students', ProspectiveStudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::post('prospective-students/{id}/approve', [ProspectiveStudentController::class, 'approve']);
         Route::get('prospective-students/registration-code/generate', [RegistrationCodeController::class, 'getNext']);
+
+        // Wa Routes
+        Route::post('/wa/fonte-blast', [FonnteController::class, 'blast']);
+        Route::prefix('wa')->group(function () {
+            Route::post('/single-send', [FonnteController::class, 'sendSingle']);
+            Route::post('/bulk-send', [FonnteController::class, 'sendBulk']);
+        });
+        // Route::post('/wa-blast', [WablasController::class, 'blast']);
 
     });
 });

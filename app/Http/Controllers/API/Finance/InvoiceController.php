@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use App\Models\InvoiceCodeReservation;
+use App\Models\Student;
+use App\Models\ProspectiveStudent;
 
 class InvoiceController extends Controller
 {
@@ -21,7 +23,17 @@ class InvoiceController extends Controller
         $status = $request->input('status');
         $perPage = $request->input('per_page', 0);
 
-        $query = Invoice::with('entity', 'studentClass', 'payment')->orderBy('created_at', 'desc');
+        $query = Invoice::with([
+                'entity' => function ($morph) {
+                    $morph->morphWith([
+                        Student::class => 'mainParent',
+                        ProspectiveStudent::class => 'mainParent',
+                    ]);
+                },
+                'studentClass',
+                'payment'
+            ])->orderBy('created_at', 'desc');
+
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -30,7 +42,7 @@ class InvoiceController extends Controller
                 ->orWhere('notes', 'like', "%$search%");
             });
 
-            $query->orWhereHasMorph('entity', [\App\Models\Student::class, \App\Models\ProspectiveStudent::class], function ($q) use ($search) {
+            $query->orWhereHasMorph('entity', [Student::class, ProspectiveStudent::class], function ($q) use ($search) {
             $q->where('full_name', 'like', "%$search%");
             });
         }

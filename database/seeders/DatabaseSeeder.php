@@ -25,8 +25,10 @@ use App\Models\RatePackage;
 use App\Models\Donor;
 use App\Models\DonationType;
 use App\Models\Grant;
+use App\Models\ParentType;
+use Illuminate\Support\Facades\Hash;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Hash;
+// use Hash;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -189,12 +191,22 @@ class DatabaseSeeder extends Seeder
             'updated_at' => null
         ]);
 
+        $parentType = uuid_create();
+        ParentType::create([
+            'id' => $parentType,
+            'name' => 'Ayah',
+            'code' => '01',
+            'created_by_id' => $userId,
+            'created_at' => now(),
+            'updated_at' => null
+        ]);
+
         $studentParent = uuid_create();
         StudentParent::create([
             'id' => $studentParent,
             'aggregate_id' => $studentId,
             'aggregate_type' => Student::class,
-            'parent_type' => 'father',
+            'parent_type_id' => $parentType,
             'full_name' => 'Budi Anzar',
             'nik' => '1234567890123456',
             'birth_year' => 1980,
@@ -292,5 +304,8 @@ class DatabaseSeeder extends Seeder
         //     'updated_at' => null
         // ]);
 
+        $this->call([
+            MessageTemplateSeeder::class,
+        ]);
     }
 }
