@@ -19,6 +19,7 @@ class UpdateStudentRequest extends FormRequest
             'full_name' => 'required|string|max:100',
             'nickname' => 'nullable|string|max:50',
             'religion.id' => 'nullable|uuid|exists:religions,id',
+            'entry_year' => 'nullable|string|max:4',
             'gender' => 'required|in:male,female',
             'birth_place' => 'required|string|max:100',
             'birth_date' => 'required|date',
@@ -44,7 +45,7 @@ class UpdateStudentRequest extends FormRequest
 
             // Student Origin School
             'origin_schools' => 'nullable|array',
-            'origin_schools.*.education_level.id' => 'required|uuid|exists:education_levels,id',
+            'origin_schools.*.education.id' => 'required|uuid|exists:educations,id',
             'origin_schools.*.school_type.id' => 'required|uuid|exists:school_types,id',
             'origin_schools.*.school_name' => 'required|string|max:100',
             'origin_schools.*.npsn' => 'required|string|max:100',
@@ -66,7 +67,7 @@ class UpdateStudentRequest extends FormRequest
             'parents.*.birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
             'parents.*.education_level.id' => 'nullable|uuid|exists:education_levels,id',
             'parents.*.address' => 'nullable|string',
-            'parents.*.occupation' => 'nullable|string',
+            'parents.*.occupation_id' => 'nullable|uuid|exists:occupations,id',
             'parents.*.income_range.id' => 'nullable|uuid|exists:income_ranges,id',
             'parents.*.phone' => 'nullable|string|max:20',
             'parents.*.is_main_contact' => 'nullable|boolean',
@@ -79,6 +80,8 @@ class UpdateStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'entry_year.max' => 'Tahun masuk maksimal 4 karakter.',
+            'entry_year.string' => 'Tahun masuk harus berupa string.',
             'registration_code.required' => 'Kode registrasi wajib diisi.',
             'full_name.required' => 'Nama lengkap wajib diisi.',
             'gender.in' => 'Jenis kelamin harus salah satu dari male atau female.',
