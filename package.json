@@ -31,7 +31,6 @@
     "escalade": "^3.2.0",
     "follow-redirects": "^1.15.9",
     "form-data": "^4.0.2",
-    "fsevents": "^2.3.3",
     "function-bind": "^1.1.2",
     "get-caller-file": "^2.0.5",
     "get-intrinsic": "^1.3.0",
@@ -74,6 +73,9 @@
     "yargs": "^17.7.2",
     "yargs-parser": "^21.1.1"
   },
+  "optionalDependencies": {
+  "fsevents": "^2.3.3"
+},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
