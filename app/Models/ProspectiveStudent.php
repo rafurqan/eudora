@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FileHelper;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -136,7 +137,8 @@ class ProspectiveStudent extends Model
         if (!$this->photo_filename)
             return null;
 
-        return asset("storage/photos/{$this->photo_filename}");
+        return FileHelper::getFileUrl('storage/photos', $this->file_name);
+        // return asset("storage/photos/{$this->photo_filename}");
     }
 
     public function classMemberships()

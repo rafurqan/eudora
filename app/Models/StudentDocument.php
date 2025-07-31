@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\FileHelper;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,7 +52,8 @@ class StudentDocument extends Model
             return null;
         }
 
-        $path = Storage::url($this->file_name);
-        return asset("storage/documents/prospective_students/{$this->file_name}");
+        // $path = Storage::url($this->file_name);
+        // return asset("storage/documents/prospective_students/{$this->file_name}");
+        return FileHelper::getFileUrl('documents/prospective_students', $this->file_name);
     }
 }
