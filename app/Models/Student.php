@@ -134,7 +134,7 @@ class Student extends Model
         if (!$this->photo_filename)
             return null;
 
-        return FileHelper::getFileUrl('storage/photos', $this->file_name);
+        return FileHelper::getFileUrl('storage/photos', $this->photo_filename);
         // return asset("storage/photos/{$this->photo_filename}");
     }
 
