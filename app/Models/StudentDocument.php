@@ -51,10 +51,6 @@ class StudentDocument extends Model
             return null;
         }
 
-        if (app()->environment('production')) {
-            return config('app.url') . '/storage/documents/prospective_students/' . $this->file_name;
-        }
-
         $path = Storage::url($this->file_name);
         return asset("storage/documents/prospective_students/{$this->file_name}");
     }
