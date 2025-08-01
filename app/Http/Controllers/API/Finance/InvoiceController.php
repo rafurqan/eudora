@@ -173,7 +173,7 @@ class InvoiceController extends Controller
                 'prospective_student' => \App\Models\ProspectiveStudent::class,
             ];
 
-            $entityTypeInput = $request->input('entity_type');
+            $entityTypeInput = $request->input('student_type');
             $entityId = $request->input('entity_id');
 
             if (!isset($entityClassMap[$entityTypeInput])) {

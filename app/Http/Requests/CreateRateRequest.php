@@ -32,7 +32,7 @@ class CreateRateRequest extends FormRequest
             'code'              => 'nullable|string',
             'description'       => 'nullable|string',
             'category'          => 'nullable|string',
-            'frequency'         => 'nullable|string',
+            'frequency'         => 'nullable|integer',
             'applies_to'        => 'nullable|string',
             'service_name'      => 'required|string|max:255',
         ];

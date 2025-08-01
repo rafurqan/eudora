@@ -52,6 +52,31 @@ class RateController extends Controller
         return ResponseFormatter::success($rate, 'List Tarif');
     }
 
+    public function active(Request $request)
+    {
+        $search = $request->input('search');
+
+        $rate = Rate::join('services', 'rates.service_id', '=', 'services.id')
+                    ->leftJoin('education_levels', 'rates.program_id', '=', 'education_levels.id')
+                    ->where('rates.is_active', 'Y')
+                    ->where(function ($query) {
+                        $query->whereJsonLength('rates.child_ids', 0)
+                            ->orWhereNull('rates.child_ids');
+                    })
+                    ->when($search, function ($query, $search) {
+                        $query->where(function ($q) use ($search) {
+                            $q->where('services.name', 'ilike', "%{$search}%")
+                            ->orWhere('rates.code', 'ilike', "%{$search}%")
+                            ->orWhere('rates.description', 'ilike', "%{$search}%");
+                        });
+                    })
+                    ->orderBy('rates.created_at', 'desc')
+                    ->select('rates.*', 'services.name as service_name', 'education_levels.name as program')
+                    ->get();
+
+        return ResponseFormatter::success($rate, 'List Tarif');
+    }
+
 
     public function store (CreateRateRequest $request)
     {   

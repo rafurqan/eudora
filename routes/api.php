@@ -92,6 +92,10 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('rates', RateController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('rates-package', RatePackageController::class)->only(['index', 'store', 'update', 'destroy']);
 
+            // Aktif Rate dan Paket Tarif
+            Route::get('rates/active', [RateController::class, 'active'])->name('rates.active');
+            Route::get('rates-package/active', [RatePackageController::class, 'active'])->name('rates-package.active');
+
             // Master Donasi
             Route::apiResource('donors', DonorsController::class)->only(['index', 'store', 'update', 'destroy']);
             Route::apiResource('donation-types', DonationsTypesController::class)->only(['index', 'store', 'update', 'destroy']);

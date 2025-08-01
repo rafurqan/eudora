@@ -21,11 +21,18 @@ class UpdateInvoiceRequest extends FormRequest
                 })->toArray(),
             ]);
         }
+
+        if (!$this->has('student_type') && $this->has('entity_type')) {
+            $this->merge([
+                'student_type' => $this->entity_type,
+            ]);
+        }
     }
 
     public function rules(): array
     {
         return [
+            
             'student_name' => 'required|string',
             'student_type' => 'required|string',
             'class' => 'required|uuid',
