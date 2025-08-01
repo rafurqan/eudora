@@ -30,18 +30,24 @@ class CreateInvoiceRequest extends FormRequest
                 })->toArray(),
             ]);
         }
+
+        if (!$this->has('student_type') && $this->has('entity_type')) {
+            $this->merge([
+                'student_type' => $this->entity_type,
+            ]);
+        }
     }
 
 
     public function rules(): array
     {
         return [
-            'entity_type' => 'required|string|in:student,prospective_student',
+            // 'entity_type' => 'required|string|in:student,prospective_student',
             'entity_id' => 'required|uuid',
 
             // 'invoice_number' => 'required|string|unique:invoice,code',
             'student_name' => 'required|string',
-            // 'student_type' => 'required|string',
+            'student_type' => 'required|string',
             'class' => 'required|uuid',
             'class_name' => 'nullable|string',
             'issue_date' => 'required|date',
@@ -59,7 +65,7 @@ class CreateInvoiceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'entity_type.in' => 'Jenis entitas harus student atau prospective_student.',
+            'student_type.in' => 'Jenis entitas harus student atau prospective_student.',
             'entity_id.required' => 'ID entitas wajib diisi.',
             'selected_items.*.rate_id.required' => 'Setiap item harus memiliki rate_id.',
         ];

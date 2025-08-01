@@ -64,7 +64,7 @@ class FonnteController extends Controller
             'name' => $invoice->entity->full_name,
             'code' => $invoice->code,
             'total' => number_format($invoice->total, 0, ',', '.'),
-            'due_date' => Carbon::parse($invoice->due_date)->translatedFormat('d F Y'),
+            'due_date' => Carbon::parse($invoice->due_date)->locale('id')->translatedFormat('j F Y'),
         ]);
 
         $token = config('services.fonnte.token');

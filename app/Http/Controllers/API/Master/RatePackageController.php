@@ -77,6 +77,53 @@ class RatePackageController extends Controller
         return ResponseFormatter::success($packages, 'List Paket Tarif');
     }
 
+    public function active(Request $request)
+    {
+        $search = $request->input('search');
+
+        $packages = RatePackage::join('services', 'rates.service_id', '=', 'services.id')
+                    ->leftJoin('education_levels', 'rates.program_id', '=', 'education_levels.id')
+                    ->where(function ($query) {
+                        $query->whereJsonLength('rates.child_ids', '>', 0)
+                              ->where('rates.is_active', 'Y');
+                    })
+                    ->when($search, function ($query, $search) {
+                        $query->where(function ($q) use ($search) {
+                            $q->where('services.name', 'ilike', "%{$search}%")
+                            ->orWhere('rates.code', 'ilike', "%{$search}%")
+                            ->orWhere('rates.description', 'ilike', "%{$search}%");
+                        });
+                    })
+                    ->orderBy('rates.created_at', 'desc')
+                    ->select('rates.*', 'services.name as service_name', 'education_levels.name as program')
+                    ->whereNull('rates.deleted_at')
+                    ->get()
+                    ->map(function ($package) {
+                        $childIds = is_array($package->child_ids) ? $package->child_ids : json_decode($package->child_ids ?? '[]', true);
+
+                        // Ambil detail tarif anak
+                        $childRates = RatePackage::whereIn('id', $childIds)->get();
+                        $package->child_rates = RatePackage::whereIn('rates.id', $childIds)
+                                                ->join('services', 'rates.service_id', '=', 'services.id')
+                                                ->select('rates.*', 'services.name as service_name')
+                                                ->get();
+                        return $package;
+                    });
+
+        // Hitung total_price dari child_ids
+        $packages->transform(function ($item) {
+            $childIds = is_array($item->child_ids) ? $item->child_ids : [];
+
+            $totalPrice = !empty($childIds)
+                ? RatePackage::whereIn('id', $childIds)->whereNull('deleted_at')->sum('price')
+                : 0;
+            $item->total_price = $totalPrice;
+            return $item;
+        });
+
+        return ResponseFormatter::success($packages, 'List Paket Tarif');
+    }
+
     public function store(CreateRatePackageRequest $request)
     {
         try {

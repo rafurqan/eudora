@@ -147,6 +147,7 @@ class StudentController extends Controller
                 s.full_name,
                 s.gender,
                 s.nisn,
+                s.registration_code,
                 'student' AS person_type
             FROM students s
             WHERE 1=1 {$whereKeyword['student']}
@@ -158,6 +159,7 @@ class StudentController extends Controller
                 ps.full_name,
                 ps.gender,
                 ps.nisn,
+                ps.registration_code,
                 'prospective_student' AS person_type
             FROM prospective_students ps
             WHERE ps.id NOT IN (
@@ -171,6 +173,7 @@ class StudentController extends Controller
             app.gender,
             app.nisn,
             app.person_type AS type,
+            app.registration_code,
             cm.student_class_id
         FROM AllPossiblePersons app
         LEFT JOIN class_memberships cm
