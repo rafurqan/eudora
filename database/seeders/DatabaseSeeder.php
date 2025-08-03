@@ -23,8 +23,8 @@ use App\Models\ProgramSchool;
 use App\Models\Donor;
 use App\Models\DonationType;
 use App\Models\Grant;
-use Hash;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
