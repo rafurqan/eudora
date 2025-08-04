@@ -45,7 +45,7 @@ class CreateProspectiveStudentRequest extends FormRequest
             'origin_schools.*.school_type.id' => 'required|uuid|exists:school_types,id',
             'origin_schools.*.school_name' => 'required|string|max:100',
             'origin_schools.*.npsn' => 'required|string|max:100',
-            'origin_schools.*.address_name' => 'required|string',
+            'origin_schools.*.address_name' => 'nullable|string',
             'origin_schools.*.graduation_year' => 'required|string',
             // Student Documents
             'documents' => 'nullable|array',
