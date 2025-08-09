@@ -39,6 +39,7 @@ use App\Http\Controllers\API\Master\{
     RateController,
     RatePackageController,
     GrantsController,
+    MessageTemplateController,
 };
 use App\Http\Controllers\API\Student\{
     StudentClassController,
@@ -148,6 +149,9 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('prospective-students', ProspectiveStudentController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
         Route::post('prospective-students/{id}/approve', [ProspectiveStudentController::class, 'approve']);
         Route::get('prospective-students/registration-code/generate', [RegistrationCodeController::class, 'getNext']);
+
+        //Template Message
+        Route::apiResource('message-templates', MessageTemplateController::class)->only(['index', 'store', 'update', 'destroy', 'show']);
 
         // Wa Routes
         Route::post('/wa/fonte-blast', [FonnteController::class, 'blast']);
