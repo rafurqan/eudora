@@ -13,24 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 class RateController extends Controller
 {
-    // public function index()
-    // {
-    //     $rate = Rate::join('services', 'rates.service_id', '=', 'services.id')
-    //                 ->leftJoin('education_levels', 'rates.program_id', '=', 'education_levels.id')
-    //                 ->where(function ($query) {
-    //                     $query->whereJsonLength('rates.child_ids', 0)
-    //                         ->orWhereNull('rates.child_ids');
-    //                 })
-    //                 ->orderBy('rates.created_at', 'desc')
-    //                 ->select('rates.*', 'services.name as service_name', 'education_levels.name as program')
-    //                 ->get();
-
-    //     return ResponseFormatter::success($rate, 'List Tarif');
-    // }
-
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search   = $request->input('search');
+        $perPage  = $request->input('per_page', 10); 
 
         $rate = Rate::join('services', 'rates.service_id', '=', 'services.id')
                     ->leftJoin('education_levels', 'rates.program_id', '=', 'education_levels.id')
@@ -47,10 +33,11 @@ class RateController extends Controller
                     })
                     ->orderBy('rates.created_at', 'desc')
                     ->select('rates.*', 'services.name as service_name', 'education_levels.name as program')
-                    ->get();
+                    ->paginate($perPage);
 
         return ResponseFormatter::success($rate, 'List Tarif');
     }
+
 
     public function active(Request $request)
     {

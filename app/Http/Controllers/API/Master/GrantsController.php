@@ -12,19 +12,30 @@ use Illuminate\Support\Facades\DB;
 
 class GrantsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $grant = Grant::select(
-            'grants.*')
-        ->orderBy('grants.created_at', 'desc')
-        ->get();
+        $search  = $request->input('search');
+        $perPage = $request->input('per_page', 10);
 
-        if ($grant->count() == 0) {
+        $grant = Grant::select('grants.*')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('donor_name', 'ilike', "%{$search}%")
+                    ->orWhere('description', 'ilike', "%{$search}%")
+                    ->orWhere('code', 'ilike', "%{$search}%")
+                    ->orWhere('grants_name', 'ilike', "%{$search}%");
+                });
+            })
+            ->orderBy('grants.created_at', 'desc')
+            ->paginate($perPage);
+
+        if ($grant->isEmpty()) {
             return ResponseFormatter::error(null, 'Data Donasi Kosong', 404);
         }
 
         return ResponseFormatter::success($grant, 'List Donasi');
     }
+
 
     public function store (CreateGrantRequest $request) {
         try {
@@ -93,13 +104,8 @@ class GrantsController extends Controller
             DB::beginTransaction();
 
             $grant = Grant::findOrFail($id);
-
-            // Naikkan versi reset
             $grant->current_reset_version = $grant->current_reset_version + 1;
-
-            // Reset total_used_funds
             $grant->total_used_funds = 0;
-
             $grant->save();
 
             DB::commit();

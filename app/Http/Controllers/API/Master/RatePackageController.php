@@ -11,28 +11,13 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Container\Attributes\Log as AttributesLog;
 
 class RatePackageController extends Controller
 {
-    // public function index()
-    // {
-    //     $rate = RatePackage::join('services', 'rates.service_id', '=', 'services.id')
-    //     ->whereNotNull('rates.child_ids')
-    //     ->whereJsonLength('rates.child_ids', '>', 0)
-    //     ->where(function ($query) {
-    //         $query->whereJsonDoesntContain('rates.child_ids', ['']);
-    //     })
-    //     ->orderBy('rates.created_at', 'desc')
-    //     ->select('rates.*', 'services.name as service_name')
-    //     ->get();
-    //     return ResponseFormatter::success($rate, 'List Paket Tarif');
-    // }
-
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search   = $request->input('search');
+        $perPage  = $request->input('per_page', 10); 
 
         $packages = RatePackage::join('services', 'rates.service_id', '=', 'services.id')
                     ->leftJoin('education_levels', 'rates.program_id', '=', 'education_levels.id')
@@ -49,33 +34,27 @@ class RatePackageController extends Controller
                     ->orderBy('rates.created_at', 'desc')
                     ->select('rates.*', 'services.name as service_name', 'education_levels.name as program')
                     ->whereNull('rates.deleted_at')
-                    ->get()
-                    ->map(function ($package) {
-                        $childIds = is_array($package->child_ids) ? $package->child_ids : json_decode($package->child_ids ?? '[]', true);
+                    ->paginate($perPage);
 
-                        // Ambil detail tarif anak
-                        $childRates = RatePackage::whereIn('id', $childIds)->get();
-                        $package->child_rates = RatePackage::whereIn('rates.id', $childIds)
-                                                ->join('services', 'rates.service_id', '=', 'services.id')
-                                                ->select('rates.*', 'services.name as service_name')
-                                                ->get();
-        return $package;
-                    });
+        $packages->getCollection()->transform(function ($package) {
+            $childIds = is_array($package->child_ids) ? $package->child_ids : json_decode($package->child_ids ?? '[]', true);
 
+            // Ambil child_rates
+            $package->child_rates = RatePackage::whereIn('rates.id', $childIds)
+                ->join('services', 'rates.service_id', '=', 'services.id')
+                ->select('rates.*', 'services.name as service_name')
+                ->get();
 
-        // Hitung total_price dari child_ids
-        $packages->transform(function ($item) {
-            $childIds = is_array($item->child_ids) ? $item->child_ids : [];
-
-            $totalPrice = !empty($childIds)
-                ? RatePackage::whereIn('id', $childIds)->whereNull('deleted_at')->sum('price') // Adjust query for soft deletes
+            $package->total_price = !empty($childIds)
+                ? RatePackage::whereIn('id', $childIds)->whereNull('deleted_at')->sum('price')
                 : 0;
-            $item->total_price = $totalPrice;
-            return $item;
+
+            return $package;
         });
 
         return ResponseFormatter::success($packages, 'List Paket Tarif');
     }
+
 
     public function active(Request $request)
     {
