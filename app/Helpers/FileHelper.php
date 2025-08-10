@@ -68,113 +68,15 @@
 // }
 
 
-namespace App\Helpers;
-
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
-
-class FileHelper
-{
-
-    public static function saveBase64File(string $base64, string $folder, int $maxSizeMb = 2): string
-    {
-        $imageData = explode(',', $base64)[1] ?? null;
-        if (!$imageData) {
-            throw new \Exception("Format base64 tidak valid");
-        }
-
-        $decoded = base64_decode($imageData);
-        if ($decoded === false) {
-            throw new \Exception("Base64 decode gagal");
-        }
-
-        $maxSize = $maxSizeMb * 1024 * 1024; // dalam byte
-        if (strlen($decoded) > $maxSize) {
-            throw new \Exception("Ukuran file melebihi {$maxSizeMb}MB");
-        }
-
-        $finfo = finfo_open();
-        $mime = finfo_buffer($finfo, $decoded, FILEINFO_MIME_TYPE);
-
-        $allowedMimes = [
-            'image/png' => 'png',
-            'image/jpeg' => 'jpg',
-            'application/pdf' => 'pdf',
-        ];
-
-        if (!isset($allowedMimes[$mime])) {
-            throw new \Exception("Tipe file tidak didukung: $mime");
-        }
-
-        $ext = $allowedMimes[$mime];
-        $filename = Str::uuid() . '.' . $ext;
-
-        if (app()->environment('production')) {
-            $publicPath = public_path($folder);
-
-            if (!File::exists($publicPath)) {
-                File::makeDirectory($publicPath, 0755, true);
-            }
-            file_put_contents($publicPath . '/' . $filename, $decoded);
-        } else {
-            Storage::disk('public')->put("{$folder}/{$filename}", $decoded);
-        }
-
-        return $filename;
-    }
-
-
-    public static function deleteFile(string $folder, string $filename): bool
-    {
-        if (app()->environment('production')) {
-            $publicPath = public_path($folder . '/' . $filename);
-            if (File::exists($publicPath)) {
-                return File::delete($publicPath);
-            }
-        } else {
-            $path = "{$folder}/{$filename}";
-            if (Storage::disk('public')->exists($path)) {
-                return Storage::disk('public')->delete($path);
-            }
-        }
-
-        return false;
-    }
-
-    public static function getFileUrl(string $folder, string $filename): ?string
-    {
-        if (!$filename) {
-            return null;
-        }
-
-        if (app()->environment('production')) {
-            return config('app.url') . '/' . $folder . '/' . $filename;
-        } else {
-            return Storage::disk('public')->url($folder . '/' . $filename);
-        }
-    }
-
-    public static function fileExists(string $folder, string $filename): bool
-    {
-        if (app()->environment('production')) {
-            return File::exists(public_path($folder . '/' . $filename));
-        } else {
-            return Storage::disk('public')->exists($folder . '/' . $filename);
-        }
-    }
-}
-
 // namespace App\Helpers;
 
 // use Illuminate\Support\Facades\Storage;
 // use Illuminate\Support\Str;
 // use Illuminate\Support\Facades\File;
-// use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
-// use CloudinaryLabs\CloudinaryLaravel\Media\CloudinaryImage;
 
 // class FileHelper
 // {
+
 //     public static function saveBase64File(string $base64, string $folder, int $maxSizeMb = 2): string
 //     {
 //         $imageData = explode(',', $base64)[1] ?? null;
@@ -187,13 +89,14 @@ class FileHelper
 //             throw new \Exception("Base64 decode gagal");
 //         }
 
-//         $maxSize = $maxSizeMb * 1024 * 1024;
+//         $maxSize = $maxSizeMb * 1024 * 1024; // dalam byte
 //         if (strlen($decoded) > $maxSize) {
 //             throw new \Exception("Ukuran file melebihi {$maxSizeMb}MB");
 //         }
 
 //         $finfo = finfo_open();
 //         $mime = finfo_buffer($finfo, $decoded, FILEINFO_MIME_TYPE);
+
 //         $allowedMimes = [
 //             'image/png' => 'png',
 //             'image/jpeg' => 'jpg',
@@ -205,40 +108,38 @@ class FileHelper
 //         }
 
 //         $ext = $allowedMimes[$mime];
-//         $filename = Str::uuid()->toString();
-//         $fullFilename = $filename . '.' . $ext;
+//         $filename = Str::uuid() . '.' . $ext;
 
 //         if (app()->environment('production')) {
-//             // Simpan file sementara
-//             $tempPath = sys_get_temp_dir() . '/' . $fullFilename;
-//             file_put_contents($tempPath, $decoded);
+//             $publicPath = public_path($folder);
 
-//             $uploadResult = Cloudinary::upload($tempPath, [
-//                 'folder' => $folder,
-//                 'public_id' => $filename,
-//                 'resource_type' => $mime === 'application/pdf' ? 'raw' : 'image',
-//             ]);
-
-//             return $uploadResult->getPublicId(); // simpan ini ke database
+//             if (!File::exists($publicPath)) {
+//                 File::makeDirectory($publicPath, 0755, true);
+//             }
+//             file_put_contents($publicPath . '/' . $filename, $decoded);
 //         } else {
-//             Storage::disk('public')->put("{$folder}/{$fullFilename}", $decoded);
-//             return $fullFilename;
+//             Storage::disk('public')->put("{$folder}/{$filename}", $decoded);
 //         }
+
+//         return $filename;
 //     }
+
 
 //     public static function deleteFile(string $folder, string $filename): bool
 //     {
 //         if (app()->environment('production')) {
-//             try {
-//                 Cloudinary::destroy("{$folder}/{$filename}");
-//                 return true;
-//             } catch (\Exception $e) {
-//                 return false;
+//             $publicPath = public_path($folder . '/' . $filename);
+//             if (File::exists($publicPath)) {
+//                 return File::delete($publicPath);
 //             }
 //         } else {
 //             $path = "{$folder}/{$filename}";
-//             return Storage::disk('public')->delete($path);
+//             if (Storage::disk('public')->exists($path)) {
+//                 return Storage::disk('public')->delete($path);
+//             }
 //         }
+
+//         return false;
 //     }
 
 //     public static function getFileUrl(string $folder, string $filename): ?string
@@ -248,18 +149,117 @@ class FileHelper
 //         }
 
 //         if (app()->environment('production')) {
-//             return (new CloudinaryImage("{$folder}/{$filename}"))->toUrl();
+//             return config('app.url') . '/' . $folder . '/' . $filename;
 //         } else {
-//             return Storage::disk('public')->url("{$folder}/{$filename}");
+//             return Storage::disk('public')->url($folder . '/' . $filename);
 //         }
 //     }
 
 //     public static function fileExists(string $folder, string $filename): bool
 //     {
 //         if (app()->environment('production')) {
-//             return true;
+//             return File::exists(public_path($folder . '/' . $filename));
 //         } else {
-//             return Storage::disk('public')->exists("{$folder}/{$filename}");
+//             return Storage::disk('public')->exists($folder . '/' . $filename);
 //         }
 //     }
 // }
+
+namespace App\Helpers;
+
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use CloudinaryLabs\CloudinaryLaravel\Media\CloudinaryImage;
+
+class FileHelper
+{
+    public static function saveBase64File(string $base64, string $folder, int $maxSizeMb = 2): string
+    {
+        $imageData = explode(',', $base64)[1] ?? null;
+        if (!$imageData) {
+            throw new \Exception("Format base64 tidak valid");
+        }
+
+        $decoded = base64_decode($imageData);
+        if ($decoded === false) {
+            throw new \Exception("Base64 decode gagal");
+        }
+
+        $maxSize = $maxSizeMb * 1024 * 1024;
+        if (strlen($decoded) > $maxSize) {
+            throw new \Exception("Ukuran file melebihi {$maxSizeMb}MB");
+        }
+
+        $finfo = finfo_open();
+        $mime = finfo_buffer($finfo, $decoded, FILEINFO_MIME_TYPE);
+        $allowedMimes = [
+            'image/png' => 'png',
+            'image/jpeg' => 'jpg',
+            'application/pdf' => 'pdf',
+        ];
+
+        if (!isset($allowedMimes[$mime])) {
+            throw new \Exception("Tipe file tidak didukung: $mime");
+        }
+
+        $ext = $allowedMimes[$mime];
+        $filename = Str::uuid()->toString();
+        $fullFilename = $filename . '.' . $ext;
+
+        if (app()->environment('production')) {
+            // Simpan file sementara
+            $tempPath = sys_get_temp_dir() . '/' . $fullFilename;
+            file_put_contents($tempPath, $decoded);
+
+            $uploadResult = Cloudinary::upload($tempPath, [
+                'folder' => $folder,
+                'public_id' => $filename,
+                'resource_type' => $mime === 'application/pdf' ? 'raw' : 'image',
+            ]);
+
+            return $uploadResult->getPublicId(); // simpan ini ke database
+        } else {
+            Storage::disk('public')->put("{$folder}/{$fullFilename}", $decoded);
+            return $fullFilename;
+        }
+    }
+
+    public static function deleteFile(string $folder, string $filename): bool
+    {
+        if (app()->environment('production')) {
+            try {
+                Cloudinary::destroy("{$folder}/{$filename}");
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
+        } else {
+            $path = "{$folder}/{$filename}";
+            return Storage::disk('public')->delete($path);
+        }
+    }
+
+    public static function getFileUrl(string $folder, string $filename): ?string
+    {
+        if (!$filename) {
+            return null;
+        }
+
+        if (app()->environment('production')) {
+            return (new CloudinaryImage("{$folder}/{$filename}"))->toUrl();
+        } else {
+            return Storage::disk('public')->url("{$folder}/{$filename}");
+        }
+    }
+
+    public static function fileExists(string $folder, string $filename): bool
+    {
+        if (app()->environment('production')) {
+            return true;
+        } else {
+            return Storage::disk('public')->exists("{$folder}/{$filename}");
+        }
+    }
+}
