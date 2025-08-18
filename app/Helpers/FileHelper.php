@@ -65,4 +65,13 @@ class FileHelper
 
         return false; // file tidak ditemukan
     }
+
+    public static function getFileUrl(string $folder, string $filename): ?string
+    {
+        if (!$filename) {
+            return null;
+        }
+
+        return Storage::disk('public')->url("{$folder}/{$filename}");
+    }
 }
