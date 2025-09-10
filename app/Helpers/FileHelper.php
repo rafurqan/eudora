@@ -7,6 +7,15 @@ use Illuminate\Support\Str;
 
 class FileHelper
 {
+    /**
+     * Simpan file base64 ke R2
+     *
+     * @param string $base64
+     * @param string $folder
+     * @param int $maxSizeMb
+     * @return string
+     * @throws \Exception
+     */
     public static function saveBase64File(string $base64, string $folder, int $maxSizeMb = 2): string
     {
         $imageData = explode(',', $base64)[1] ?? null;
@@ -43,30 +52,44 @@ class FileHelper
         $ext = $allowedMimes[$mime];
         $filename = Str::uuid() . '.' . $ext;
 
-        Storage::disk('public')->put("{$folder}/{$filename}", $decoded);
+        // Simpan ke R2
+        Storage::disk('r2')->put("{$folder}/{$filename}", $decoded, 'public');
+
 
         return $filename;
     }
 
     /**
-     * Hapus file dari storage/public/{folder}
+     * Hapus file dari R2
      */
     public static function deleteFile(string $folder, string $filename): bool
     {
         $path = "{$folder}/{$filename}";
-        if (Storage::disk('public')->exists($path)) {
-            return Storage::disk('public')->delete($path);
+        if (Storage::disk('r2')->exists($path)) {
+            return Storage::disk('r2')->delete($path);
         }
 
         return false; // file tidak ditemukan
     }
 
-    public static function getFileUrl(string $folder, string $filename): ?string
+    /**
+     * Ambil URL file dari R2
+     */
+    public static function getFileUrl(string $folder, string $filename): string
     {
         if (!$filename) {
-            return null;
+            return '';
         }
 
-        return Storage::disk('public')->url("{$folder}/{$filename}");
+        $path = "{$folder}/{$filename}";
+
+        if (!Storage::disk('r2')->exists($path)) {
+            return '';
+        }
+
+        return Storage::disk('r2')->temporaryUrl(
+            $path,
+            now()->addMinutes(30)
+        );
     }
 }
