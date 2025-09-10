@@ -7,11 +7,6 @@ use Illuminate\Support\Str;
 
 class FileHelper
 {
-    /**
-     * Simpan file base64 ke storage/public/{folder}
-     *
-     * @throws \Exception
-     */
     public static function saveBase64File(string $base64, string $folder, int $maxSizeMb = 2): string
     {
         $imageData = explode(',', $base64)[1] ?? null;
