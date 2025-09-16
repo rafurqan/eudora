@@ -95,11 +95,15 @@ class StudentController extends Controller
         $activeStudents = $students->where('status', 'active');
 
         $totalYatim = $activeStudents->filter(function ($student) {
-            return $student->specialCondition && stripos($student->specialCondition->name, 'yatim') !== false;
+            return $student->specialCondition && stripos($student->specialCondition->name, 'anak yatim') !== false;
         })->count();
 
         $totalAnakGuru = $activeStudents->filter(function ($student) {
             return $student->specialCondition && stripos($student->specialCondition->name, 'anak guru') !== false;
+        })->count();
+
+        $totalBinaLingkungan = $activeStudents->filter(function ($student) {
+            return $student->specialCondition && stripos($student->specialCondition->name, 'bina lingkungan') !== false;
         })->count();
 
         $totalSpecialNeed = $activeStudents->filter(function ($student) {
@@ -111,6 +115,7 @@ class StudentController extends Controller
             'orphan' => $totalYatim,
             'teacher_child' => $totalAnakGuru,
             'special_needs' => $totalSpecialNeed,
+            'surrounding_environment' =>$totalBinaLingkungan
         ];
     }
 
